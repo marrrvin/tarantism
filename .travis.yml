@@ -1,0 +1,24 @@
+
+language: python
+
+python:
+  - "2.6"
+  - "2.7"
+  - "pypy"
+
+install:
+  - "python setup.py install"
+  - "make initdev"
+
+script:
+  - "make test"
+
+before_script:
+  - "make check"
+
+notifications:
+  email:
+    recipients:
+      - foobar@list.ru
+    on_success: never
+    on_failure: change
