@@ -2,8 +2,6 @@
 from setuptools import setup
 from setuptools import find_packages
 
-from tarantism import __version__
-
 
 with open('README.rst') as fp:
     long_description = fp.readline()
@@ -16,7 +14,7 @@ setup(
     name='tarantism',
     description='',
     long_description=long_description,
-    version=__version__,
+    version='0.1',
     url='http://github.com/marrrvin/tarantism/',
     author='Sergey Orlov',
     author_email='foobar@list.ru',
