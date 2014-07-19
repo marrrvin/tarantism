@@ -7,8 +7,10 @@ python:
   - "pypy"
 
 before_install:
- - sudo apt-get update -qq
- - sudo apt-get install -qq tarantool
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq tarantool
+  - cp ${TRAVIS_BUILD_DIR}/conf/tarantool_test.cfg /etc/tarantool/instances.enabled/
+  - sudo service tarantool restart
 
 install:
   - "python setup.py install"
