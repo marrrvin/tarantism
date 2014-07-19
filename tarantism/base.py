@@ -1,4 +1,5 @@
 
+from tarantism.errors import DoesNotExist
 from tarantism.fields import Field
 from tarantism.backend import spaces
 from tarantism.backend import DEFAULT_ALIAS
@@ -12,6 +13,11 @@ class ModelManager(object):
     def get(self, key):
         data = self.space.select(key)
 
+        if not data:
+            raise DoesNotExist(
+                '{klass} instance does not exists.'.format(klass=self.klass)
+            )
+
         return self.klass(data)
 
     def save(self, data):
@@ -22,6 +28,8 @@ class ModelManager(object):
 
 
 class Model(object):
+    DoesNotExist = DoesNotExist
+
     objects = ModelManager()
 
     def __init__(self, *args, **kwargs):

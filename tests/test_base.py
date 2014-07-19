@@ -27,3 +27,8 @@ class BaseTestCase(unittest.TestCase):
 
         self.assertEqual(record.pk, actual_record.pk)
         self.assertEqual(record.data, actual_record.data)
+
+        record.delete()
+
+        with self.assertRaises(Record.DoesNotExist):
+            Record.objects.get(pk)
