@@ -15,7 +15,7 @@ class Record(Model):
 class BaseTestCase(unittest.TestCase):
     def test_create(self):
         initialize(host='127.0.0.1', port=33013, space=0)
-        pk = 1
+        pk = 1L
         Record.objects.delete(pk)
         record = Record(
             pk=pk,
