@@ -30,5 +30,4 @@ class BaseTestCase(unittest.TestCase):
 
         record.delete()
 
-        with self.assertRaises(Record.DoesNotExist):
-            Record.objects.get(pk)
+        self.assertRaises(Record.DoesNotExist, Record.objects.get, pk)
