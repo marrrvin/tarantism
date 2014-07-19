@@ -1,6 +1,6 @@
 
 from tarantism.errors import DoesNotExist
-from tarantism.fields import Field
+from tarantism.fields import BaseField
 from tarantism.backend import spaces
 from tarantism.backend import DEFAULT_ALIAS
 
@@ -27,26 +27,43 @@ class ModelManager(object):
         return self.space.delete(key)
 
 
+
+class ModelMetaclass(type):
+    def __new__(cls, name, bases, attrs):
+        super_new = super(ModelMetaclass, cls).__new__
+
+        fields = {}
+        for attr_name, attr_value in attrs.iteritems():
+            if not isinstance(attr_value, BaseField):
+                continue
+
+            attr_value.name = attr_name
+            fields[attr_name] = attr_value
+
+        attrs['_fields'] = fields
+
+        return super_new(cls, name, bases, attrs)
+
+
 class Model(object):
+    __metaclass__ = ModelMetaclass
+
     DoesNotExist = DoesNotExist
 
     objects = ModelManager()
 
-    def __init__(self, *args, **kwargs):
-        dct = self.__class__.__dict__
+    def __init__(self, **kwargs):
         for key, value in kwargs.iteritems():
-            if key in dct and isinstance(dct[key], Field):
+            if key in self._fields:
                 setattr(self, key, value)
 
         self.objects.klass = self.__class__
 
+        self._data = {}
+
     def save(self):
         dct = self.__class__.__dict__
         data = []
-
-        for key, value in dct.iteritems():
-            if key in dct and isinstance(dct[key], Field):
-                data.append(getattr(self, key))
 
         return self.objects.save(data)
 
