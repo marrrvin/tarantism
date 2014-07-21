@@ -11,6 +11,7 @@ before_install:
   - sudo apt-get install tarantool
   - sudo ls -l /etc/tarantool/instances.enabled/
   - sudo cp ${TRAVIS_BUILD_DIR}/conf/tests/tarantool.cfg /etc/tarantool/instances.enabled/
+  - sudo dpkg -L tarantool
   - sudo cp ${TRAVIS_BUILD_DIR}/conf/tests/init.lua /usr/share/tarantool/lua/
   - sudo service tarantool restart
 
