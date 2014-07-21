@@ -1,5 +1,5 @@
 
-from tarantism.backend import initialize
+from tarantism.connection import *
 from tarantism.fields import NumField, Num64Field, StrField
 from tarantism.base import Model
 

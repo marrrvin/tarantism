@@ -1,14 +1,13 @@
 
 from tarantism.errors import DoesNotExist
 from tarantism.fields import BaseField
-from tarantism.backend import spaces
-from tarantism.backend import DEFAULT_ALIAS
+from tarantism.connection import get_space
 
 
 class ModelManager(object):
     @property
     def space(self):
-        return spaces[DEFAULT_ALIAS]
+        return get_space()
 
     def get(self, key):
         data = self.space.select(key)
