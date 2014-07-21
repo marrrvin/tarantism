@@ -4,7 +4,8 @@ import tarantool
 
 __all__ = [
     'DEFAULT_ALIAS', 'DEFAULT_SETTINGS',
-    'register_connection', 'get_connection', 'disconnect', 'get_space', 'connect'
+    'register_connection', 'get_connection',
+    'disconnect', 'get_space', 'connect'
 ]
 
 
@@ -42,7 +43,9 @@ def get_connection(alias=DEFAULT_ALIAS, reconnect=False):
 
         if not _connection_settings:
             raise ValueError(
-                'Connection with alias {alias} have not defined.'.format(alias=alias)
+                'Connection with alias {alias} have not defined.'.format(
+                    alias=alias
+                )
             )
 
         _connections[alias] = tarantool.connect(

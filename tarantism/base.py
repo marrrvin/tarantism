@@ -26,7 +26,6 @@ class ModelManager(object):
         return self.space.delete(key)
 
 
-
 class ModelMetaclass(type):
     def __new__(cls, name, bases, attrs):
         super_new = super(ModelMetaclass, cls).__new__
