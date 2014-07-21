@@ -2,14 +2,14 @@
 import tarantool
 
 
-__all__ = ['connect', 'register_connection', 'get_space',
-           'DEFAULT_ALIAS', 'DEFAULT_SETTINGS']
+__all__ = [
+    'DEFAULT_ALIAS', 'DEFAULT_SETTINGS',
+    'register_connection', 'get_connection', 'disconnect', 'get_space', 'connect'
+]
 
-
-_connections = {}
 
 _connection_settings = {}
-
+_connections = {}
 _spaces = {}
 
 
@@ -41,7 +41,9 @@ def get_connection(alias=DEFAULT_ALIAS, reconnect=False):
         conn_settings = _connection_settings.get(alias)
 
         if not _connection_settings:
-            raise ValueError('Connection with alias {alias} have not defined.')
+            raise ValueError(
+                'Connection with alias {alias} have not defined.'.format(alias=alias)
+            )
 
         _connections[alias] = tarantool.connect(
             host=conn_settings.get('host'),
@@ -53,10 +55,14 @@ def get_connection(alias=DEFAULT_ALIAS, reconnect=False):
 
 def disconnect(alias=DEFAULT_ALIAS):
     global _connections
+    global _spaces
 
     if alias in _connections:
-        get_connection(alias=alias).disconnect()
+        get_connection(alias=alias).close()
         del _connections[alias]
+
+    if alias in _spaces:
+        del _spaces[alias]
 
 
 def get_space(alias=DEFAULT_ALIAS, reconnect=False):
