@@ -5,13 +5,13 @@ from tarantism import DEFAULT_ALIAS
 from tarantism import register_connection
 from tarantism import get_space
 from tarantism import Model
-from tarantism import Num64Field
-from tarantism import StrField
+from tarantism import LongField
+from tarantism import StringField
 
 
 class Record(Model):
-    pk = Num64Field()
-    data = StrField()
+    pk = LongField()
+    data = StringField()
 
 
 class BaseTestCase(unittest.TestCase):
