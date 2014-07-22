@@ -14,9 +14,9 @@ before_install:
   - echo "deb-src http://tarantool.org/dist/stable/ubuntu/ $release main" | sudo tee -a /etc/apt/sources.list.d/tarantool.list;
 
 install:
+  - sudo apt-get install tarantool-lts tarantool-lts-client
   - sudo cp ${TRAVIS_BUILD_DIR}/conf/tests/tarantool.cfg /etc/tarantool/instances.enabled/
-  - sudo mkdir -p /usr/share/tarantool/lua/
-  - sudo cp ${TRAVIS_BUILD_DIR}/conf/tests/init.lua /usr/share/tarantool/lua/
+  - sudo install -d ${TRAVIS_BUILD_DIR}/conf/tests/init.lua /usr/share/tarantool/lua
   - sudo service tarantool-lts restart
   - python setup.py install
   - make initdev
