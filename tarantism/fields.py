@@ -29,8 +29,11 @@ class BaseField(object):
     def __set__(self, instance, value):
         instance._data[self.name] = value
 
-    def to_db(self, value):
+    def to_python(self, value):
         return value
+
+    def to_db(self, value):
+        return self.to_python(value)
 
     def validate(self, value):
         pass
@@ -55,7 +58,7 @@ class IntField(BaseField):
         if self.max_value is not None and value > self.max_value:
             raise ValidationError('Integer value is too large')
 
-    def to_db(self, value):
+    def to_python(self, value):
         return int(value)
 
 
@@ -78,7 +81,7 @@ class LongField(BaseField):
         if self.max_value is not None and value > self.max_value:
             raise ValidationError('Long value is too large')
 
-    def to_db(self, value):
+    def to_python(self, value):
         return long(value)
 
 
@@ -106,5 +109,5 @@ class StringField(BaseField):
         if self.regex is not None and self.regex.match(value) is None:
             raise ValidationError('String value did not match validation regex')
 
-    def to_db(self, value):
+    def to_python(self, value):
         return str(value)
