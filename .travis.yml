@@ -24,8 +24,8 @@ install:
 script:
   - "make test"
 
-before_script:
-  - "make check"
+#before_script:
+#  - "make check"
 
 notifications:
   email:
