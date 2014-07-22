@@ -10,8 +10,13 @@ from tarantism import StringField
 
 
 class Record(Model):
-    pk = LongField()
-    data = StringField()
+    pk = LongField(
+        min_value=0
+    )
+    data = StringField(
+        min_length=1,
+        max_length=1
+    )
 
 
 class BaseTestCase(unittest.TestCase):
@@ -30,14 +35,12 @@ class BaseTestCase(unittest.TestCase):
 
     def test_create(self):
         pk = 1L
-        Record.objects.delete(pk)
+
         record = Record(
             pk=pk,
             data='test'
         )
-        record.save()
-
-        actual_record = Record.objects.get(pk)
+        actual_record = record.save()
 
         self.assertEqual(record.pk, actual_record.pk)
         self.assertEqual(record.data, actual_record.data)
