@@ -9,7 +9,7 @@ python:
 before_install:
   - sudo apt-get update
   - sudo apt-get install tarantool
-  - sudo ls -l /etc/tarantool/instances.enabled/
+  - sudo tarantool_box --version
   - sudo cp ${TRAVIS_BUILD_DIR}/conf/tests/tarantool.cfg /etc/tarantool/instances.enabled/
   - sudo mkdir -p /usr/share/tarantool/lua/
   - sudo cp ${TRAVIS_BUILD_DIR}/conf/tests/init.lua /usr/share/tarantool/lua/
