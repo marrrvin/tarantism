@@ -7,11 +7,12 @@ python:
   - "pypy"
 
 before_install:
-  - wget http://tarantool.org/dist/public.key;
-  - sudo apt-key add ./public.key;
-  - release=`lsb_release -c -s`;
-  - echo "deb http://tarantool.org/dist/stable/ubuntu/ $release main" | sudo tee -a /etc/apt/sources.list.d/tarantool.list;
-  - echo "deb-src http://tarantool.org/dist/stable/ubuntu/ $release main" | sudo tee -a /etc/apt/sources.list.d/tarantool.list;
+  - wget http://tarantool.org/dist/public.key
+  - sudo apt-key add ./public.key
+  - release=`lsb_release -c -s`
+  - echo "deb http://tarantool.org/dist/stable/ubuntu/ $release main" | sudo tee -a /etc/apt/sources.list.d/tarantool.list
+  - echo "deb-src http://tarantool.org/dist/stable/ubuntu/ $release main" | sudo tee -a /etc/apt/sources.list.d/tarantool.list
+  - sudo apt-get update
 
 install:
   - sudo apt-get install tarantool-lts tarantool-lts-client
