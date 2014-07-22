@@ -7,17 +7,19 @@ python:
   - "pypy"
 
 before_install:
-  - sudo apt-get update
-  - sudo apt-get install tarantool
-  - sudo tarantool_box --version
+  - wget http://tarantool.org/dist/public.key;
+  - sudo apt-key add ./public.key;
+  - release=`lsb_release -c -s`;
+  - echo "deb http://tarantool.org/dist/stable/ubuntu/ $release main" | sudo tee -a /etc/apt/sources.list.d/tarantool.list;
+  - echo "deb-src http://tarantool.org/dist/stable/ubuntu/ $release main" | sudo tee -a /etc/apt/sources.list.d/tarantool.list;
+
+install:
   - sudo cp ${TRAVIS_BUILD_DIR}/conf/tests/tarantool.cfg /etc/tarantool/instances.enabled/
   - sudo mkdir -p /usr/share/tarantool/lua/
   - sudo cp ${TRAVIS_BUILD_DIR}/conf/tests/init.lua /usr/share/tarantool/lua/
-  - sudo service tarantool restart
-
-install:
-  - "python setup.py install"
-  - "make initdev"
+  - sudo service tarantool-lts restart
+  - python setup.py install
+  - make initdev
 
 script:
   - "make test"
