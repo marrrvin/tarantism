@@ -27,6 +27,9 @@ class BaseField(object):
         return instance._data.get(self.name)
 
     def __set__(self, instance, value):
+        if value is None and self.default is not None:
+            value = self.default
+
         instance._data[self.name] = value
 
     def to_python(self, value):

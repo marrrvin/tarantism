@@ -16,6 +16,11 @@ class Model(object):
     def __init__(self, **kwargs):
         self._data = {}
 
+        # Set defaults
+        for key, field in self._fields.iteritems():
+            value = getattr(self, key, None)
+            setattr(self, key, value)
+
         for key, value in kwargs.iteritems():
             if key in self._fields:
                 setattr(self, key, value)
@@ -23,19 +28,6 @@ class Model(object):
     @classmethod
     def _get_space(cls):
         return get_space(cls._meta.get('db_alias', DEFAULT_ALIAS))
-
-    """
-    def __iter__(self):
-
-    def __delattr__(self, *args, **kwargs):
-
-    def __setattr__(self, name, value):
-
-    def __getstate__(self):
-
-    def __setstate__(self, data):
-
-    """
 
     def validate(self):
         for field_name, field in self._fields.items():
