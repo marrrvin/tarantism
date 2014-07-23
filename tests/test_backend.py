@@ -18,26 +18,32 @@ class DatabaseTestCase(TestCase):
         }
 
         register_connection(DEFAULT_ALIAS, **self.tnt_config)
-        space = get_space()
-        space.connection.call(
+
+        self.space = get_space()
+        self.space.connection.call(
             'clear_space', (str(self.tnt_config['space']),)
         )
 
 
 class SaveModelTestCase(DatabaseTestCase):
     def test_save(self):
-        """
         class Record(Model):
-            pk = LongField()
+            pk = LongField(
+                required=True
+            )
             data = StringField()
 
-        r = Record()
+        pk = 1L
 
-        actual_r = r.save()
+        r = Record(pk=pk, data='test')
+        r.save()
 
-        self.assertEqual(r.pk, actual_r.pk)
-        self.assertEqual(r.data, actual_r.data)
-        """
+        response = self.space.select(pk)
+
+        actual_record = response[0]
+        self.assertEqual(r.pk, int(actual_record[0]))
+        self.assertEqual(r.data, actual_record[1])
+
 
 
 class LoadModelTestCase(DatabaseTestCase):
