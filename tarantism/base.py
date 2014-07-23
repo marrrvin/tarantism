@@ -3,6 +3,7 @@ from tarantism.managers import Manager
 from tarantism.metaclasses import ModelMetaclass
 from tarantism.connection import get_space
 from tarantism.connection import DEFAULT_ALIAS
+from tarantism.errors import ValidationError
 
 
 __all__ = ['Model']
@@ -34,6 +35,8 @@ class Model(object):
             value = self._data.get(field_name)
             if value is not None:
                 field.validate(value)
+            elif field.required:
+                raise ValidationError('Field is required')
 
     def to_db(self):
         data = {}
