@@ -7,14 +7,18 @@ from tarantism import StringField
 
 
 class CreateModelTestCase(TestCase):
-    def test_default(self):
+    def test_defaults(self):
+        default_pk = 1L
+        default_data = u'Test data'
+
         class Record(Model):
-            pk = LongField()
-            data = StringField(default='test')
+            pk = LongField(default=default_pk)
+            data = StringField(default=default_data)
 
         r = Record()
 
-        self.assertEqual('test', r.data)
+        self.assertEqual(default_pk, r.pk)
+        self.assertEqual(default_data, r.data)
 
     def test_create(self):
         class Record(Model):

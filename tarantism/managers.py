@@ -4,8 +4,9 @@ __all__ = ['Manager']
 
 
 class Manager(object):
-    def get(self, key):
-        response = self.space.select(key)
+    def get(self, **kwargs):
+        values = kwargs.values()
+        response = self.space.select(values)
         if not response.rowcount:
             raise self.klass.DoesNotExist(
                 '{klass} instance does not exists.'.format(klass=self.klass)
