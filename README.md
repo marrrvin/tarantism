@@ -1,7 +1,5 @@
 # Tarantism
 
-```
-
 ## О проекте
 
 Tarantism - это минималистичный ORM поверх NOSQL базы данных [Tarantool](http://tarantool.org/).
@@ -9,6 +7,13 @@ Tarantism - это минималистичный ORM поверх NOSQL баз�
 ## Пример использования
 
 ```
+from tarantism import connect
+from tarantism import Model
+from tarantism import LongField
+from tarantism import IntegerField
+from tarantism import StringField
+
+
 class User(Model):
     pk = LongField()
     age = IntegerField(
@@ -28,4 +33,21 @@ class User(Model):
         required=False,
         verbose_name=u'User biography'
     )
+
+connect()
+
+
+user = User(
+    pk=1L,
+    age=27,
+    login=u'the_login',
+    password=u'********'
+)
+user.save()
+
+user.bio = u'Good guy.'
+
+user.update()
+
+user.delete()
 ```
