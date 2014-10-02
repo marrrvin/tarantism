@@ -17,17 +17,17 @@ TEST_COVERAGE_ARGS=--with-coverage --cover-package=$(PACKAGE_NAME) \
 all: help
 
 help:
-	@echo "help - display this help."
-	@echo "init - install project requirements."
-	@echo "inittest - install tests requirements."
-	@echo "test - run tests"
+	@echo "help         - display this help."
+	@echo "init         - install project requirements."
+	@echo "inittest     - install tests requirements."
+	@echo "test         - run tests"
 	@echo "testcoverage - run tests with code coverage report."
-	@echo "initdev - install development tools."
-	@echo "clean - clean all artifacts."
-	@echo "clean-build - remove build artifacts."
-	@echo "clean-pyc - remove Python file artifacts."
-	@echo "clean-tests - remove tests running artifacts."
-	@echo "check - check package code style via pep8 utility."
+	@echo "initdev      - install development tools."
+	@echo "clean        - clean all artifacts."
+	@echo "clean-build  - remove build artifacts."
+	@echo "clean-pyc    - remove Python file artifacts."
+	@echo "clean-tests  - remove tests running artifacts."
+	@echo "check        - check package code style via pep8 utility."
 
 init:
 	$(PIP_BIN) install -r requirements.txt
