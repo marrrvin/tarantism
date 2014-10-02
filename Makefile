@@ -39,20 +39,20 @@ test: init inittest
 	MOCKERNAUT_SETTINGS=$(SETTINGS_PATH)/test_config.py \
 	$(TEST_RUNNER) $(TEST_RUNNER_ARGS) $(TESTS_PATH)
 
-testcoverage:
+testcoverage: init inittest
 	$(TEST_RUNNER) $(TEST_RUNNER_ARGS) $(TEST_COVERAGE_ARGS) $(TESTS_PATH)
 
 initdev:
 	$(PIP_BIN) install -r dev-requirements.txt
 
-clean: clean-build clean-pyc clean-tests
+clean: clean-build clean-py clean-tests
 
 clean-build:
 	rm -fr build/
 	rm -fr dist/
 	rm -fr *.egg-info
 
-clean-pyc:
+clean-py:
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
