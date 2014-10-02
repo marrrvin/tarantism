@@ -16,7 +16,7 @@ from tarantism import StringField
 
 class User(Model):
     pk = LongField()
-    age = IntegerField(
+    age = IntField(
         verbose_name=u'Age'
     )
     login = StringField(
