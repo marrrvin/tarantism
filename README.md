@@ -6,7 +6,7 @@ Tarantism - это минималистичный ORM поверх NOSQL баз�
 
 ## Пример использования
 
-```
+```python
 from tarantism import connect
 from tarantism import Model
 from tarantism import LongField
