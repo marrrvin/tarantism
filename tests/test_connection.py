@@ -1,5 +1,5 @@
 
-from unittest import TestCase
+from unittest2 import TestCase
 from mock import patch
 
 from tarantool import Connection

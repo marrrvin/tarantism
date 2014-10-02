@@ -1,5 +1,5 @@
 
-from unittest import TestCase
+from unittest2 import TestCase
 
 import tarantism.connection
 from tarantism import DEFAULT_ALIAS
