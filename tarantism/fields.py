@@ -10,8 +10,12 @@ __all__ = ['BaseField', 'IntField', 'LongField', 'StringField']
 class BaseField(object):
     name = None
 
-    def __init__(self, required=False, default=None,
-                 primary_key=False, validation=None, verbose_name=None,
+    def __init__(self,
+                 required=True,
+                 default=None,
+                 primary_key=False,
+                 validation=None,
+                 verbose_name=None,
                  help_text=None):
         self.required = required
         self.default = default

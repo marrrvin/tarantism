@@ -3,7 +3,7 @@ from setuptools import setup
 from setuptools import find_packages
 
 
-with open('README.rst') as fp:
+with open('README.md') as fp:
     long_description = fp.readline()
 
 with open('requirements.txt') as fp:
