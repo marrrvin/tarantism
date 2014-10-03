@@ -14,13 +14,13 @@ class BaseField(object):
                  required=True,
                  default=None,
                  primary_key=False,
-                 validation=None,
+                 db_index=None,
                  verbose_name=None,
                  help_text=None):
         self.required = required
         self.default = default
         self.primary_key = primary_key
-        self.validation = validation
+        self.db_index = db_index
         self.verbose_name = verbose_name
         self.help_text = help_text
 
@@ -57,13 +57,25 @@ class IntField(BaseField):
         try:
             value = int(value)
         except ValueError:
-            raise ValidationError('%s could not be converted to int' % value)
+            raise ValidationError(
+                '{name} field error: {value} could not be converted to int.'.format(
+                    name=self.name, value=value
+                )
+            )
 
         if self.min_value is not None and value < self.min_value:
-            raise ValidationError('Integer value is too small')
+            raise ValidationError(
+                '{name} field error: value {value} is less than {min_value}'.format(
+                    name=self.name, value=value, min_value=self.min_value
+                )
+            )
 
         if self.max_value is not None and value > self.max_value:
-            raise ValidationError('Integer value is too large')
+            raise ValidationError(
+                '{name} field error: value {value} is greater than {max_value}'.format(
+                    name=self.name, value=value, max_value=self.max_value
+                )
+            )
 
     def to_python(self, value):
         return int(value)
@@ -80,13 +92,25 @@ class LongField(BaseField):
         try:
             value = long(value)
         except ValueError:
-            raise ValidationError('%s could not be converted to long' % value)
+            raise ValidationError(
+                '{name} field error: {value} could not be converted to long.'.format(
+                    name=self.name, value=value
+                )
+            )
 
         if self.min_value is not None and value < self.min_value:
-            raise ValidationError('Long value is too small')
+            raise ValidationError(
+                '{name} field error: value {value} is less than {min_value}'.format(
+                    name=self.name, value=value, min_value=self.min_value
+                )
+            )
 
         if self.max_value is not None and value > self.max_value:
-            raise ValidationError('Long value is too large')
+            raise ValidationError(
+                '{name} field error: value {value} is greater than {max_value}'.format(
+                    name=self.name, value=value, max_value=self.max_value
+                )
+            )
 
     def to_python(self, value):
         return long(value)
@@ -102,19 +126,32 @@ class StringField(BaseField):
 
     def validate(self, value):
         if not isinstance(value, basestring):
-            raise ValidationError('Field {name} error: {class_name} only accepts string values.'.format(
-                name=self.name,
-                class_name=self.__class__.__name__
-            ))
-
-        if self.max_length is not None and len(value) > self.max_length:
-            raise ValidationError('Field {name} error: string value is too long.'.format(name=self.name))
+            raise ValidationError(
+                '{name} field error: {value} could not be converted to string.'.format(
+                    name=self.name, value=value
+                )
+            )
 
         if self.min_length is not None and len(value) < self.min_length:
-            raise ValidationError('String value is too short')
+            raise ValidationError(
+                '{name} field error: value {value} length is less than {min_length}'.format(
+                    name=self.name, value=value, min_length=self.min_length
+                )
+            )
+
+        if self.max_length is not None and len(value) > self.max_length:
+            raise ValidationError(
+                '{name} field error: value {value} length is greater than {max_length}'.format(
+                    name=self.name, value=value, max_length=self.max_length
+                )
+            )
 
         if self.regex is not None and self.regex.match(value) is None:
-            raise ValidationError('String value did not match validation regex')
+            raise ValidationError(
+                '{name} field error: value {value} did not match validation regex.'.format(
+                    name=self.name, value=value
+                )
+            )
 
     def to_python(self, value):
         return str(value)

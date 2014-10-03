@@ -36,7 +36,7 @@ class Model(object):
             if value is not None:
                 field.validate(value)
             elif field.required:
-                raise ValidationError('Field is required')
+                raise ValidationError('Field {name} is required.'.format(name=field.name))
 
     def to_db(self):
         data = {}
@@ -61,14 +61,21 @@ class Model(object):
         return self
 
     def delete(self):
-        pk = getattr(self, 'pk')
-
         self.objects.klass = self.__class__
         self.objects.space = self._get_space()
 
-        return self.objects.delete(pk)
+        return self.objects.delete(self._get_pk())
 
     def update(self, **kwargs):
         """
         TODO
         """
+
+    def _get_pk(self):
+        pk = getattr(self, 'pk', None)
+        if pk:
+            return pk
+
+        for field in self._fields.iteritems():
+            if field.primary_key:
+                return field.primary_key
