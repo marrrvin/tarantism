@@ -6,7 +6,7 @@ from tarantism import LongField
 from tarantism import StringField
 
 
-class CreateModelTestCase(TestCase):
+class ModelTestCase(TestCase):
     def test_defaults(self):
         default_pk = 1L
         default_data = u'Test data'

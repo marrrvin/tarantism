@@ -1,5 +1,4 @@
 
-from tarantism.managers import Manager
 from tarantism.metaclasses import ModelMetaclass
 from tarantism.connection import get_space
 from tarantism.connection import DEFAULT_ALIAS
@@ -11,8 +10,6 @@ __all__ = ['Model']
 
 class Model(object):
     __metaclass__ = ModelMetaclass
-
-    objects = Manager()
 
     def __init__(self, **kwargs):
         self._data = {}
@@ -28,13 +25,16 @@ class Model(object):
 
     @classmethod
     def _get_space(cls):
-        return get_space(cls._meta.get('db_alias', DEFAULT_ALIAS))
+        return get_space(
+            cls._meta.get('db_alias', DEFAULT_ALIAS)
+        )
 
     def validate(self):
         for field_name, field in self._fields.items():
             value = self._data.get(field_name)
             if value is not None:
                 field.validate(value)
+
             elif field.required:
                 raise ValidationError('Field {name} is required.'.format(name=field.name))
 
@@ -52,30 +52,47 @@ class Model(object):
 
         data = self.to_db()
 
-        # FIXME
-        self.objects.klass = self.__class__
-        self.objects.space = self._get_space()
-
-        self.objects.save(data)
+        self.insert(data)
 
         return self
 
-    def delete(self):
-        self.objects.klass = self.__class__
-        self.objects.space = self._get_space()
+    def insert(self, data):
+        values = self._dict_to_values(data)
 
-        return self.objects.delete(self._get_pk())
+        return self._get_space().insert(values)
 
     def update(self, **kwargs):
-        """
-        TODO
-        """
+        primary_key_value = self._get_primary_key_value()
+        data = self._dict_to_values(kwargs)
 
-    def _get_pk(self):
+        return self._get_space().update(primary_key_value, data)
+
+    def delete(self):
+        primary_key_value = self._get_primary_key_value()
+
+        return self._get_space().delete(primary_key_value)
+
+    @classmethod
+    def _values_to_dict(cls, values):
+        return dict(zip(
+            cls._fields_ordered, values
+        ))
+
+    @classmethod
+    def _dict_to_values(cls, data):
+        return tuple([
+            data[field_name] for field_name in cls._fields_ordered
+        ])
+
+    def _get_primary_key_value(self):
         pk = getattr(self, 'pk', None)
         if pk:
             return pk
 
-        for field in self._fields.iteritems():
+        for field_name, field in self._fields.iteritems():
             if field.primary_key:
-                return field.primary_key
+                return getattr(self, field_name)
+
+        raise ValueError(
+            'Model should have primary key field.'
+        )

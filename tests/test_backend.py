@@ -53,17 +53,6 @@ class SaveModelTestCase(DatabaseTestCase):
         self.assertEqual(r.data, actual_record[1])
 
 
-
-class LoadModelTestCase(DatabaseTestCase):
-    def test_load_existent(self):
-        """
-        """
-
-    def test_load_non_existent(self):
-        """
-        """
-
-
 class DeleteModelTestCase(DatabaseTestCase):
     def test_delete_existent(self):
         class Record(Model):
@@ -76,4 +65,63 @@ class DeleteModelTestCase(DatabaseTestCase):
         r.save()
         r.delete()
 
-        self.assertRaises(DoesNotExist, Record.objects.get, pk=pk)
+        with self.assertRaises(DoesNotExist):
+            Record.objects.get(pk=pk)
+
+    def test_delete_non_default_primary_key(self):
+        class Record(Model):
+            id = LongField(
+                primary_key=True,
+                db_index=0
+            )
+            data = StringField()
+
+        user_id = 1L
+        data = u'test'
+
+        r = Record(id=user_id, data=data)
+        r.save()
+        r.delete()
+
+        with self.assertRaises(DoesNotExist):
+            Record.objects.get(id=user_id)
+
+
+class ManagerGetTestCase(DatabaseTestCase):
+    def test_get_does_not_exist(self):
+        class Record1(Model):
+            pk = LongField()
+            data = StringField()
+
+        with self.assertRaises(Record1.DoesNotExist):
+            Record1.objects.get(pk=1L)
+
+    def test_get_non_existent_field(self):
+        class Record(Model):
+            pk = LongField()
+            data = StringField()
+
+        with self.assertRaises(ValueError):
+            Record.objects.get(non_existent_field=1L)
+
+    def test_get_primary_key_not_defined(self):
+        class Record(Model):
+            data = StringField()
+
+        with self.assertRaises(ValueError):
+            Record.objects.get(data=u'test')
+
+    def test_get_non_default_index(self):
+        class Record(Model):
+            user_id = LongField(db_index=0)
+            data = StringField()
+
+        user_id = 1L
+        data = u'test'
+
+        r1 = Record(user_id=user_id, data=data)
+        r1.save()
+
+        r2 = Record.objects.get(user_id=user_id)
+
+        self.assertEqual(data, r2.data)

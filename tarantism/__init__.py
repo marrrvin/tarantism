@@ -1,7 +1,7 @@
 
 from tarantism.connection import *
 from tarantism.fields import *
-from tarantism.base import *
+from tarantism.model import *
 from tarantism.errors import *
 
 

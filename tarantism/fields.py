@@ -10,6 +10,8 @@ __all__ = ['BaseField', 'IntField', 'LongField', 'StringField']
 class BaseField(object):
     name = None
 
+    creation_counter = 0
+
     def __init__(self,
                  required=True,
                  default=None,
@@ -23,6 +25,9 @@ class BaseField(object):
         self.db_index = db_index
         self.verbose_name = verbose_name
         self.help_text = help_text
+
+        self.creation_counter = BaseField.creation_counter
+        BaseField.creation_counter += 1
 
     def __get__(self, instance, owner):
         if instance is None:

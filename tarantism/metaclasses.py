@@ -1,5 +1,6 @@
 
 from tarantism.fields import BaseField
+from tarantism.queryset import QuerySetManager
 from tarantism.errors import DoesNotExist
 from tarantism.errors import MultipleObjectsReturned
 
@@ -16,10 +17,18 @@ class ModelMetaclass(type):
             if not isinstance(attr_value, BaseField):
                 continue
 
+            # Inject field name into field inside model.
             attr_value.name = attr_name
+
             fields[attr_name] = attr_value
 
         attrs['_fields'] = fields
+        attrs['_fields_ordered'] = tuple(i[1] for i in sorted(
+                                         (v.creation_counter, v.name)
+                                         for v in fields.itervalues()))
+
+        attrs['objects'] = QuerySetManager()
+
         attrs['_meta'] = attrs.pop('meta') if 'meta' in attrs else {}
 
         for exc in (DoesNotExist, MultipleObjectsReturned):
