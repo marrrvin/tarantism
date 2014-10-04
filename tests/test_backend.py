@@ -87,14 +87,31 @@ class DeleteModelTestCase(DatabaseTestCase):
             Record.objects.get(id=user_id)
 
 
+    def test_delete_primary_key_not_defined(self):
+        class Record(Model):
+            id = LongField(
+                db_index=0
+            )
+            data = StringField()
+
+        user_id = 1L
+        data = u'test'
+
+        r = Record(id=user_id, data=data)
+        r.save()
+
+        with self.assertRaises(ValueError):
+            r.delete()
+
+
 class ManagerGetTestCase(DatabaseTestCase):
     def test_get_does_not_exist(self):
-        class Record1(Model):
+        class Record(Model):
             pk = LongField()
             data = StringField()
 
-        with self.assertRaises(Record1.DoesNotExist):
-            Record1.objects.get(pk=1L)
+        with self.assertRaises(Record.DoesNotExist):
+            Record.objects.get(pk=1L)
 
     def test_get_non_existent_field(self):
         class Record(Model):
