@@ -18,24 +18,21 @@ class DatabaseTestCase(TestCase):
         self.tnt_config = {
             'host': '127.0.0.1',
             'port': 33013,
-            'space': 0
         }
-        register_connection(DEFAULT_ALIAS, **self.tnt_config)
-        register_connection('test2', space=1)
+        self.another_space_alias = 'the_new_space'
 
-        self.space1 = get_space(DEFAULT_ALIAS)
-        self.space2 = get_space('test2')
+        register_connection(DEFAULT_ALIAS, space=0, **self.tnt_config)
+        register_connection(self.another_space_alias, space=1, **self.tnt_config)
+
+        self.space = get_space(DEFAULT_ALIAS)
+        self.another_space = get_space(self.another_space_alias)
 
     def tearDown(self):
-        self.space1.connection.call(
-            'clear_space', (str(self.tnt_config['space']),)
-        )
-        self.space2.connection.call(
-            'clear_space', (str(1),)
-        )
+        self.space.connection.call('clear_space', ('0',))
+        self.another_space.connection.call('clear_space', ('1',))
 
         disconnect(DEFAULT_ALIAS)
-        disconnect('test2')
+        disconnect(self.another_space_alias)
 
         setattr(tarantism.connection, '_connection_settings', {})
         setattr(tarantism.connection, '_connections', {})
@@ -53,7 +50,7 @@ class SaveModelTestCase(DatabaseTestCase):
         r = Record(pk=pk, data='test')
         r.save()
 
-        response = self.space1.select(pk)
+        response = self.space.select(pk)
 
         actual_record = response[0]
         self.assertEqual(r.pk, int(actual_record[0]))
@@ -127,7 +124,7 @@ class ManagerGetTestCase(DatabaseTestCase):
             data = StringField()
 
             meta = {
-                'db_alias': 'test2'
+                'db_alias': self.another_space_alias
             }
 
         r1 = Record(id=1L, user_id=1L, data=u'test1')
