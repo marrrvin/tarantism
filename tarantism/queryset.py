@@ -20,27 +20,35 @@ class QuerySet(object):
         self.model_class = model_class
         self.space = space
 
-    def get(self, **kwargs):
+    def filter(self, **kwargs):
         field_name, value = kwargs.items().pop()
 
         index = self._get_index_number_by_field_name(field_name)
 
         response = self.space.select(value, index=index)
 
-        if not response.rowcount:
+        model_list = []
+        for values in response:
+            model_data = self.model_class._values_to_dict(values)
+            model_list.append(self.model_class(**model_data))
+
+        return model_list
+
+    def get(self, **kwargs):
+        model_list = self.filter(**kwargs)
+
+        if not model_list:
             raise self.model_class.DoesNotExist(
                 '{model_class} instance does not exists.'.format(model_class=self.model_class)
             )
-        elif response.rowcount > 1:
-            raise self.model_class.DoesNotExist(
+        elif len(model_list) > 1:
+            raise self.model_class.MultipleObjectsReturned(
                 'get() returned more than one {model_class} -- it returned {count}!'.format(
-                    model_class=self.model_class, count=response.rowcount
+                    model_class=self.model_class, count=len(model_list)
                 )
             )
 
-        model_data = self.model_class._values_to_dict(response[0])
-
-        return self.model_class(**model_data)
+        return model_list.pop()
 
     def _get_index_number_by_field_name(self, field_name):
         if field_name not in self.model_class._fields:
