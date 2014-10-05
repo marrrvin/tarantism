@@ -164,3 +164,35 @@ class ManagerGetTestCase(DatabaseTestCase):
         r2 = Record.objects.get(user_id=user_id)
 
         self.assertEqual(data, r2.data)
+
+
+class ManagerFilterTestCase(DatabaseTestCase):
+    def test_get_empty_list(self):
+        class Record(Model):
+            pk = LongField()
+            data = StringField()
+
+        records = Record.objects.filter(pk=1L)
+
+        self.assertIsInstance(records, list)
+        self.assertEqual(0, len(records))
+
+    def test_get_list(self):
+        class Record(Model):
+            pk = LongField()
+            user_id = LongField(db_index=1)
+            data = StringField()
+
+            meta = {
+                'db_alias': self.another_space_alias
+            }
+
+        r1 = Record(pk=1L, user_id=1L, data=u'test1')
+        r1.save()
+        r2 = Record(pk=2L, user_id=1L, data=u'test1')
+        r2.save()
+
+        records = Record.objects.filter(user_id=1L)
+
+        self.assertIsInstance(records, list)
+        self.assertEqual(2, len(records))
