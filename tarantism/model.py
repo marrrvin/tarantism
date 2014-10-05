@@ -63,14 +63,27 @@ class Model(object):
 
     def update(self, **kwargs):
         primary_key_value = self._get_primary_key_value()
-        data = self._dict_to_values(kwargs)
 
-        return self._get_space().update(primary_key_value, data)
+        return self._get_space().update(
+            primary_key_value, self._make_changes(kwargs)
+        )
 
     def delete(self):
         primary_key_value = self._get_primary_key_value()
 
         return self._get_space().delete(primary_key_value)
+
+    def _make_changes(self, data):
+        changes = []
+        for field_number, field_name in enumerate(self._fields_ordered):
+            if field_name in data:
+                value = data[field_name]
+                # FIXME: update do not understand unicode strings.
+                if isinstance(value, unicode):
+                    value = str(value)
+                changes.append((field_number, '=', value))
+
+        return changes
 
     @classmethod
     def _values_to_dict(cls, values):
@@ -81,7 +94,7 @@ class Model(object):
     @classmethod
     def _dict_to_values(cls, data):
         return tuple([
-            data[field_name] for field_name in cls._fields_ordered
+            data[field_name] for field_name in cls._fields_ordered if field_name in data
         ])
 
     def _get_primary_key_value(self):

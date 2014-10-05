@@ -196,3 +196,18 @@ class ManagerFilterTestCase(DatabaseTestCase):
 
         self.assertIsInstance(records, list)
         self.assertEqual(2, len(records))
+
+
+class UpdateTestCase(DatabaseTestCase):
+    def test_update(self):
+        class Record(Model):
+            pk = LongField()
+            data = StringField()
+
+        r = Record(pk=1L, data=u'test1')
+        r.save()
+
+        r.update(data=u'test2')
+
+        r2 = Record.objects.get(pk=1L)
+        self.assertEqual(u'test2', r2.data)
