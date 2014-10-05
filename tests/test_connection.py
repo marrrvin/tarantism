@@ -50,7 +50,8 @@ class ConnectionTestCase(TestCase):
     @patch.dict('tarantism.connection._spaces', {'q': {}})
     def test_get_connection_non_existent_alias(self):
         non_existent_alias = 'unknown'
-        self.assertRaises(ValueError, get_connection, non_existent_alias)
+        with self.assertRaises(ValueError):
+            get_connection(non_existent_alias)
 
     @patch.dict('tarantism.connection._connection_settings', {'q': {}})
     @patch.dict('tarantism.connection._connections', {'q': {}})

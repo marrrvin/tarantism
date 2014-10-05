@@ -24,7 +24,8 @@ class FieldRequiredValidationTestCase(TestCase):
 
         r = Record()
 
-        self.assertRaises(ValidationError, r.validate)
+        with self.assertRaises(ValidationError):
+            r.validate()
 
 
 class IntFieldValidationTestCase(TestCase):
@@ -33,7 +34,8 @@ class IntFieldValidationTestCase(TestCase):
             pk = IntField(min_value=1)
 
         r = Record(pk='invalid-pk')
-        self.assertRaises(ValidationError, r.validate)
+        with self.assertRaises(ValidationError):
+            r.validate()
 
     def test_fail_on_min_value(self):
         class Record(Model):
@@ -41,15 +43,16 @@ class IntFieldValidationTestCase(TestCase):
 
         r = Record(pk=-1L)
 
-        self.assertRaises(ValidationError, r.validate)
+        with self.assertRaises(ValidationError):
+            r.validate()
 
     def test_fail_on_max_value(self):
         class Record(Model):
             pk = IntField(max_value=1)
 
         r = Record(pk=2L)
-
-        self.assertRaises(ValidationError, r.validate)
+        with self.assertRaises(ValidationError):
+            r.validate()
 
 
 class LongFieldValidationTestCase(TestCase):
@@ -58,23 +61,24 @@ class LongFieldValidationTestCase(TestCase):
             pk = LongField(min_value=1)
 
         r = Record(pk='invalid-pk')
-        self.assertRaises(ValidationError, r.validate)
+        with self.assertRaises(ValidationError):
+            r.validate()
 
     def test_fail_on_min_value(self):
         class Record(Model):
             pk = LongField(min_value=1)
 
         r = Record(pk=-1L)
-
-        self.assertRaises(ValidationError, r.validate)
+        with self.assertRaises(ValidationError):
+            r.validate()
 
     def test_fail_on_max_value(self):
         class Record(Model):
             pk = LongField(max_value=1)
 
         r = Record(pk=2L)
-
-        self.assertRaises(ValidationError, r.validate)
+        with self.assertRaises(ValidationError):
+            r.validate()
 
 
 class StringFieldValidationTestCase(TestCase):
@@ -83,24 +87,24 @@ class StringFieldValidationTestCase(TestCase):
             data = StringField(min_length=1)
 
         r = Record(data=u'')
-
-        self.assertRaises(ValidationError, r.validate)
+        with self.assertRaises(ValidationError):
+            r.validate()
 
     def test_fail_on_max_length(self):
         class Record(Model):
             data = StringField(max_length=1)
 
         r = Record(data=u'test')
-
-        self.assertRaises(ValidationError, r.validate)
+        with self.assertRaises(ValidationError):
+            r.validate()
 
     def test_fail_on_regex(self):
         class Record(Model):
             data = StringField(regex=u'^\d+$')
 
         r = Record(data=u'123test45')
-
-        self.assertRaises(ValidationError, r.validate)
+        with self.assertRaises(ValidationError):
+            r.validate()
 
 
 class ValidationPassedTestCase(TestCase):

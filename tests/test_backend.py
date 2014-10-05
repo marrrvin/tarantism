@@ -86,7 +86,6 @@ class DeleteModelTestCase(DatabaseTestCase):
         with self.assertRaises(DoesNotExist):
             Record.objects.get(id=user_id)
 
-
     def test_delete_primary_key_not_defined(self):
         class Record(Model):
             id = LongField(

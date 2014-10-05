@@ -1,5 +1,10 @@
 
-__all__ = ['DoesNotExist', 'MultipleObjectsReturned', 'ImproperlyConfigured', 'ValidationError']
+__all__ = [
+    'DoesNotExist',
+    'MultipleObjectsReturned',
+    'ImproperlyConfigured',
+    'ValidationError'
+]
 
 
 class DoesNotExist(Exception):
