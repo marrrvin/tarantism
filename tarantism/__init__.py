@@ -2,6 +2,7 @@
 from tarantism.connection import *
 from tarantism.fields import *
 from tarantism.model import *
+from tarantism.queryset import *
 from tarantism.errors import *
 
 
