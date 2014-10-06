@@ -4,6 +4,8 @@
 
 Tarantism - это минималистичный ORM поверх NOSQL базы данных [Tarantool](http://tarantool.org/).
 
+[![Build Status](https://travis-ci.org/marrrvin/tarantism.svg?branch=master)](https://travis-ci.org/marrrvin/tarantism)
+
 ## Пример использования
 
 ```python
