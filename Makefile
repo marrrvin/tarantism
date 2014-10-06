@@ -35,11 +35,11 @@ init:
 inittest:
 	$(PIP_BIN) install -r test-requirements.txt
 
-test: init inittest
+test: init inittest clean
 	MOCKERNAUT_SETTINGS=$(SETTINGS_PATH)/test_config.py \
 	$(TEST_RUNNER) $(TEST_RUNNER_ARGS) $(TESTS_PATH)
 
-testcoverage: init inittest
+testcoverage: init inittest clean
 	$(TEST_RUNNER) $(TEST_RUNNER_ARGS) $(TEST_COVERAGE_ARGS) $(TESTS_PATH)
 
 initdev:
@@ -58,6 +58,7 @@ clean-py:
 	find . -name '*~' -exec rm -f {} +
 
 clean-tests:
+	rm -fr .coverage
 	rm -fr $(TEST_COVERAGE_REPORT_DIR)
 
 check: initdev
