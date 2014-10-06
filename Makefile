@@ -10,8 +10,11 @@ PEP8_BIN=pep8
 TEST_RUNNER=nosetests
 TEST_RUNNER_ARGS=-v --nocapture
 TEST_COVERAGE_REPORT_DIR=$(ROOT_PATH)/htmlcov/
-TEST_COVERAGE_ARGS=--with-coverage --cover-package=$(PACKAGE_NAME) \
-                   --cover-html --cover-html-dir=$(TEST_COVERAGE_REPORT_DIR)
+TEST_COVERAGE_ARGS=--with-coverage \
+                   --cover-package=$(PACKAGE_NAME) \
+                   --cover-html \
+                   --cover-html-dir=$(TEST_COVERAGE_REPORT_DIR) \
+                   --cover-erase
 
 
 all: help
@@ -45,7 +48,7 @@ testcoverage: init inittest clean
 initdev:
 	$(PIP_BIN) install -r dev-requirements.txt
 
-clean: clean-build clean-py clean-tests
+clean: clean-build clean-py
 
 clean-build:
 	rm -fr build/
@@ -56,10 +59,6 @@ clean-py:
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
-
-clean-tests:
-	rm -fr .coverage
-	rm -fr $(TEST_COVERAGE_REPORT_DIR)
 
 check: initdev
 	$(PEP8_BIN) $(PACKAGE_PATH) $(TESTS_PATH)
