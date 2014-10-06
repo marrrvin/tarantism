@@ -198,6 +198,18 @@ class ManagerFilterTestCase(DatabaseTestCase):
         self.assertEqual(2, len(records))
 
 
+class ManagerCreateTestCase(DatabaseTestCase):
+    def test_create(self):
+        class Record(Model):
+            pk = LongField()
+            data = StringField()
+
+        data = u'test1'
+
+        r = Record.objects.create(pk=1L, data=data)
+
+        self.assertEqual(data, r.data)
+
 class UpdateTestCase(DatabaseTestCase):
     def test_update(self):
         class Record(Model):

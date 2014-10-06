@@ -50,6 +50,9 @@ class QuerySet(object):
 
         return model_list.pop()
 
+    def create(self, **kwargs):
+        return self.model_class(**kwargs).save()
+
     def _get_index_number_by_field_name(self, field_name):
         if field_name not in self.model_class._fields:
             raise ValueError(
