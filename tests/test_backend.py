@@ -223,3 +223,52 @@ class UpdateTestCase(DatabaseTestCase):
 
         r2 = Record.objects.get(pk=1L)
         self.assertEqual(u'test2', r2.data)
+
+    def test_update_unkonown_operation(self):
+        class Record(Model):
+            pk = LongField()
+            counter = IntField()
+
+        r = Record(pk=1L, counter=1)
+        r.save()
+
+        with self.assertRaises(ValueError):
+            r.update(counter__unknown=10)
+
+    def test_update_add(self):
+        class Record(Model):
+            pk = LongField()
+            counter = IntField()
+
+        r = Record(pk=1L, counter=1)
+        r.save()
+
+        from tarantool.schema import Schema
+        import tarantool
+        schema_dict = {
+            0: {
+                'name': 'Record',
+                'fields': {
+                    0: {
+                        'name': 'pk',
+                        'type': tarantool.NUM64
+                    },
+                    1: {
+                        'name': 'counter',
+                        'type': tarantool.NUM,
+                    }
+                },
+                'indexes': {
+                    0: {
+                        'name': 'pk',
+                        'fields': [0]
+                    }
+                }
+            }
+        }
+        r.get_space().connection.schema = Schema(schema_dict)
+
+        r.update(counter__add=10)
+
+        r2 = Record.objects.get(pk=1L)
+        self.assertEqual(11, r2.counter)

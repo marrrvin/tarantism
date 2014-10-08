@@ -47,9 +47,7 @@ user = User(
 )
 user.save()
 
-user.bio = u'Good guy.'
-
-user.update()
+user.update(bio=u'User bio.', age__inc=1)
 
 user.delete()
 ```

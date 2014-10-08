@@ -82,6 +82,14 @@ class LongFieldValidationTestCase(TestCase):
 
 
 class StringFieldValidationTestCase(TestCase):
+    def test_fail_on_invalid_type(self):
+        class Record(Model):
+            pk = StringField()
+
+        r = Record(pk={})
+        with self.assertRaises(ValidationError):
+            r.validate()
+
     def test_fail_on_min_length(self):
         class Record(Model):
             data = StringField(min_length=1)

@@ -8,26 +8,38 @@ from tarantism.errors import ValidationError
 __all__ = ['Model']
 
 
+OPERATIONS_MAP = {
+    'add': '+',
+    'assign': '=',
+    'and': '&',
+    'xor': '^',
+    'or': '|',
+}
+
+
 class Model(object):
     __metaclass__ = ModelMetaclass
 
     def __init__(self, **kwargs):
         self._data = {}
 
-        # Set defaults
-        for key, field in self._fields.iteritems():
-            value = getattr(self, key, None)
-            setattr(self, key, value)
+        self.set_default_state()
 
         for key, value in kwargs.iteritems():
             if key in self._fields:
                 setattr(self, key, value)
 
     @classmethod
-    def _get_space(cls):
+    def get_space(cls):
         return get_space(
             cls._meta.get('db_alias', DEFAULT_ALIAS)
         )
+
+    def set_default_state(self):
+        self._data = {}
+        for key, field in self._fields.iteritems():
+            value = getattr(self, key, None)
+            setattr(self, key, value)
 
     def validate(self):
         for field_name, field in self._fields.items():
@@ -36,7 +48,9 @@ class Model(object):
                 field.validate(value)
 
             elif field.required:
-                raise ValidationError('Field {name} is required.'.format(name=field.name))
+                raise ValidationError(
+                    'Field {name} is required.'.format(name=field.name)
+                )
 
     def to_db(self):
         data = {}
@@ -59,29 +73,58 @@ class Model(object):
     def insert(self, data):
         values = self._dict_to_values(data)
 
-        return self._get_space().insert(values)
+        return self.get_space().insert(values)
 
     def update(self, **kwargs):
         primary_key_value = self._get_primary_key_value()
 
-        return self._get_space().update(
-            primary_key_value, self._make_changes(kwargs)
+        changes = self._make_changes_struct(kwargs)
+
+        return self.get_space().update(
+            primary_key_value, changes
         )
 
     def delete(self):
         primary_key_value = self._get_primary_key_value()
 
-        return self._get_space().delete(primary_key_value)
+        return self.get_space().delete(primary_key_value)
 
-    def _make_changes(self, data):
+    def _parse_fields(self, data):
+        field_operation_map = {}
+
+        for key, value in data.iteritems():
+            chunks = key.split('__', 1)
+
+            if len(chunks) == 1:
+                field_name = chunks[0]
+                modificator = 'assign'
+            else:
+                field_name = chunks[0]
+                modificator = chunks[1]
+
+            try:
+                operation = OPERATIONS_MAP[modificator]
+            except KeyError:
+                raise ValueError(
+                    'Unknown field modificator {mod}.'.format(mod=modificator)
+                )
+
+            field_operation_map[field_name] = (operation, value)
+
+        return field_operation_map
+
+    def _make_changes_struct(self, data):
+        field_operation_map = self._parse_fields(data)
         changes = []
         for field_number, field_name in enumerate(self._fields_ordered):
-            if field_name in data:
-                value = data[field_name]
+            if field_name in field_operation_map:
+                operation, value = field_operation_map[field_name]
+
                 # FIXME: update do not understand unicode strings.
                 if isinstance(value, unicode):
                     value = str(value)
-                changes.append((field_number, '=', value))
+
+                changes.append((field_number, operation, value))
 
         return changes
 
