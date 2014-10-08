@@ -29,6 +29,24 @@ class Model(object):
             if key in self._fields:
                 setattr(self, key, value)
 
+    def __iter__(self):
+        return iter(self._fields_ordered)
+
+    def __getitem__(self, name):
+        try:
+            if name in self._fields_ordered:
+                return getattr(self, name)
+        except AttributeError:
+            pass
+
+        raise KeyError(name)
+
+    def __setitem__(self, name, value):
+        if name not in self._fields:
+            raise KeyError(name)
+
+        return setattr(self, name, value)
+
     @classmethod
     def get_space(cls):
         return get_space(

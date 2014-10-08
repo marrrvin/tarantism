@@ -210,6 +210,7 @@ class ManagerCreateTestCase(DatabaseTestCase):
 
         self.assertEqual(data, r.data)
 
+
 class UpdateTestCase(DatabaseTestCase):
     def test_update(self):
         class Record(Model):
