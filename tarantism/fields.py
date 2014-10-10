@@ -32,9 +32,9 @@ class BaseField(object):
         BaseField.creation_counter += 1
 
     @property
-    def tarantool_type(self):
+    def db_type(self):
         raise NotImplementedError(
-            '@tarantool_type property not defined for BaseField.'
+            'BaseField is abstract and has no type.'
         )
 
     def __get__(self, instance, owner):
@@ -67,7 +67,7 @@ class IntField(BaseField):
         super(IntField, self).__init__(**kwargs)
 
     @property
-    def tarantool_type(self):
+    def db_type(self):
         return tarantool.NUM
 
     def validate(self, value):
@@ -106,7 +106,7 @@ class LongField(BaseField):
         super(LongField, self).__init__(**kwargs)
 
     @property
-    def tarantool_type(self):
+    def db_type(self):
         return tarantool.NUM64
 
     def validate(self, value):
@@ -146,7 +146,7 @@ class StringField(BaseField):
         super(StringField, self).__init__(**kwargs)
 
     @property
-    def tarantool_type(self):
+    def db_type(self):
         return tarantool.STR
 
     def validate(self, value):

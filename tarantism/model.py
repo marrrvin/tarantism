@@ -66,7 +66,7 @@ class Model(object):
 
             schema_params['fields'][field_number] = {
                 'name': field_name,
-                'type': field.tarantool_type
+                'type': field.db_type
             }
 
             if field.db_index is not None:
