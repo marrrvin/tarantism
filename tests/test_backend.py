@@ -241,33 +241,9 @@ class UpdateTestCase(DatabaseTestCase):
             pk = LongField()
             counter = IntField()
 
+
         r = Record(pk=1L, counter=1)
         r.save()
-
-        from tarantool.schema import Schema
-        import tarantool
-        schema_dict = {
-            0: {
-                'name': 'Record',
-                'fields': {
-                    0: {
-                        'name': 'pk',
-                        'type': tarantool.NUM64
-                    },
-                    1: {
-                        'name': 'counter',
-                        'type': tarantool.NUM,
-                    }
-                },
-                'indexes': {
-                    0: {
-                        'name': 'pk',
-                        'fields': [0]
-                    }
-                }
-            }
-        }
-        r.get_space().connection.schema = Schema(schema_dict)
 
         r.update(counter__add=10)
 

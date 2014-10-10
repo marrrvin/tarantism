@@ -2,7 +2,7 @@
 
 ## О проекте
 
-Tarantism - это минималистичный ORM поверх NOSQL базы данных [Tarantool](http://tarantool.org/).
+Tarantism - это минималистичный ORM для NOSQL базы данных [Tarantool](http://tarantool.org/).
 
 [![Build Status](https://travis-ci.org/marrrvin/tarantism.svg?branch=master)](https://travis-ci.org/marrrvin/tarantism)
 
@@ -47,7 +47,7 @@ user = User(
 )
 user.save()
 
-user.update(bio=u'User bio.', age__inc=1)
+user.update(bio=u'User bio.', age__add=1)
 
 user.delete()
 ```

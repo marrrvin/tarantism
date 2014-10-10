@@ -53,6 +53,36 @@ class Model(object):
             cls._meta.get('db_alias', DEFAULT_ALIAS)
         )
 
+    @classmethod
+    def _get_schema_params(cls):
+        schema_params = {
+            'name': cls.__name__,
+            'fields': {},
+            'indexes': {}
+        }
+
+        for field_number, field_name in enumerate(cls._fields_ordered):
+            field = cls._fields[field_name]
+
+            schema_params['fields'][field_number] = {
+                'name': field_name,
+                'type': field.tarantool_type
+            }
+
+            if field.db_index is not None:
+                schema_params['indexes'][field.db_index] = {
+                    'name': field.name,
+                    'fields': [field_number]
+                }
+            # FIXME: hack for pk
+            elif field.name == 'pk':
+                schema_params['indexes'][0] = {
+                    'name': field.name,
+                    'fields': [0]
+                }
+
+        return schema_params
+
     def set_default_state(self):
         self._data = {}
         for key, field in self._fields.iteritems():

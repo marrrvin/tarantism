@@ -1,4 +1,6 @@
 
+from tarantool.schema import Schema
+
 __all__ = ['QuerySetManager', 'QuerySet']
 
 DEFAULT_PRIMARY_KEY_FIELD_NAME = 'pk'
@@ -18,9 +20,16 @@ class QuerySet(object):
     def __init__(self, model_class, space):
         self._model_class = model_class
         self._space = space
+        self._schema_configured = False
 
     @property
     def space(self):
+        if not self._schema_configured:
+            self._space.connection.schema = Schema({
+                self._space.space_no: self._model_class._get_schema_params()
+            })
+            self._schema_configured = True
+
         return self._space
 
     def filter(self, **kwargs):
@@ -42,11 +51,13 @@ class QuerySet(object):
 
         if not model_list:
             raise self._model_class.DoesNotExist(
-                '{model_class} instance does not exists.'.format(model_class=self._model_class)
-            )
+                '{model_class} instance does not exists.'.format(
+                    model_class=self._model_class
+                ))
         elif len(model_list) > 1:
             raise self._model_class.MultipleObjectsReturned(
-                'get() returned more than one {model_class} -- it returned {count}!'.format(
+                'get() returned more than one {model_class} '
+                '-- it returned {count}!'.format(
                     model_class=self._model_class, count=len(model_list)
                 )
             )
@@ -59,7 +70,8 @@ class QuerySet(object):
     def _get_index_number_by_field_name(self, field_name):
         if field_name not in self._model_class._fields:
             raise ValueError(
-                'Field {name} is not in defined field list: [{field_list}].'.format(
+                'Field {name} is not in defined field list: '
+                '[{field_list}].'.format(
                     name=field_name,
                     field_list=', '.join(self._model_class._fields_ordered)
                 )

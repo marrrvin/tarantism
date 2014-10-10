@@ -1,6 +1,8 @@
 
 import re
 
+import tarantool
+
 from tarantism.errors import ValidationError
 
 
@@ -28,6 +30,12 @@ class BaseField(object):
 
         self.creation_counter = BaseField.creation_counter
         BaseField.creation_counter += 1
+
+    @property
+    def tarantool_type(self):
+        raise NotImplementedError(
+            '@tarantool_type property not defined for BaseField.'
+        )
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -57,6 +65,10 @@ class IntField(BaseField):
         self.max_value = max_value
 
         super(IntField, self).__init__(**kwargs)
+
+    @property
+    def tarantool_type(self):
+        return tarantool.NUM
 
     def validate(self, value):
         try:
@@ -93,6 +105,10 @@ class LongField(BaseField):
 
         super(LongField, self).__init__(**kwargs)
 
+    @property
+    def tarantool_type(self):
+        return tarantool.NUM64
+
     def validate(self, value):
         try:
             value = long(value)
@@ -128,6 +144,10 @@ class StringField(BaseField):
         self.min_length = min_length
 
         super(StringField, self).__init__(**kwargs)
+
+    @property
+    def tarantool_type(self):
+        return tarantool.STR
 
     def validate(self, value):
         if not isinstance(value, basestring):
