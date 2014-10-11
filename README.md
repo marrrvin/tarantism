@@ -10,28 +10,25 @@ Tarantism - это минималистичный ORM для NOSQL базы да
 
 ```python
 from tarantism import connect
-from tarantism import Model
-from tarantism import LongField
-from tarantism import IntegerField
-from tarantism import StringField
+from tarantism import models
 
 
-class User(Model):
-    pk = LongField()
-    age = IntField(
+class User(models.Model):
+    pk = models.LongField()
+    age = models.IntField(
         verbose_name=u'Age'
     )
-    login = StringField(
+    login = models.StringField(
         max_length=10,
         max_length=50,
         verbose_name=u'Login'
     )
-    password = StringField(
+    password = models.StringField(
         max_length=6,
         max_length=20,
         verbose_name=u'Password'
     )
-    bio = StringField(
+    bio = models.StringField(
         required=False,
         verbose_name=u'User biography'
     )

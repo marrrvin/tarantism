@@ -4,10 +4,7 @@ from tarantism import DEFAULT_ALIAS
 from tarantism import register_connection
 from tarantism import get_space
 from tarantism import disconnect
-from tarantism import Model
-from tarantism import IntField
-from tarantism import LongField
-from tarantism import StringField
+from tarantism import models
 from tarantism import DoesNotExist
 from tarantism.tests import TestCase
 
@@ -38,11 +35,11 @@ class DatabaseTestCase(TestCase):
         setattr(tarantism.connection, '_spaces', {})
 
 
-class SaveModelTestCase(DatabaseTestCase):
+class ModelSaveTestCase(DatabaseTestCase):
     def test_save(self):
-        class Record(Model):
-            pk = LongField()
-            data = StringField()
+        class Record(models.Model):
+            pk = models.LongField()
+            data = models.StringField()
 
         pk = 1L
 
@@ -56,12 +53,12 @@ class SaveModelTestCase(DatabaseTestCase):
         self.assertEqual(r.data, actual_record[1])
 
 
-class DeleteModelTestCase(DatabaseTestCase):
+class ModelDeleteTestCase(DatabaseTestCase):
     def test_delete_existent(self):
-        class Record(Model):
-            pk = LongField()
-            data = StringField()
-            secodary_key = IntField()
+        class Record(models.Model):
+            pk = models.LongField()
+            data = models.StringField()
+            secodary_key = models.IntField()
 
         pk = 1L
 
@@ -73,12 +70,12 @@ class DeleteModelTestCase(DatabaseTestCase):
             Record.objects.get(pk=pk)
 
     def test_delete_non_default_primary_key(self):
-        class Record(Model):
-            id = LongField(
+        class Record(models.Model):
+            id = models.LongField(
                 primary_key=True,
                 db_index=0
             )
-            data = StringField()
+            data = models.StringField()
 
         user_id = 1L
         data = u'test'
@@ -91,11 +88,11 @@ class DeleteModelTestCase(DatabaseTestCase):
             Record.objects.get(id=user_id)
 
     def test_delete_primary_key_not_defined(self):
-        class Record(Model):
-            id = LongField(
+        class Record(models.Model):
+            id = models.LongField(
                 db_index=0
             )
-            data = StringField()
+            data = models.StringField()
 
         user_id = 1L
         data = u'test'
@@ -107,20 +104,64 @@ class DeleteModelTestCase(DatabaseTestCase):
             r.delete()
 
 
+class ModelUpdateTestCase(DatabaseTestCase):
+    def test_update(self):
+        pk = 1L
+        init_value = u'test1'
+        new_value = u'test2'
+
+        class Record(models.Model):
+            pk = models.LongField()
+            data = models.StringField()
+
+        r = Record(pk=pk, data=init_value)
+        r.save()
+
+        r.update(data=new_value)
+
+        r2 = Record.objects.get(pk=pk)
+        self.assertEqual(new_value, r2.data)
+
+    def test_update_unknown_operation(self):
+        class Record(models.Model):
+            pk = models.LongField()
+            counter = models.IntField()
+
+        r = Record(pk=1L, counter=1)
+        r.save()
+
+        with self.assertRaises(ValueError):
+            r.update(counter__unknown=10)
+
+    def test_update_add(self):
+        class Record(models.Model):
+            pk = models.LongField()
+            counter = models.IntField()
+
+
+        r = Record(pk=1L, counter=1)
+        r.save()
+
+        r.update(counter__add=10)
+
+        r2 = Record.objects.get(pk=1L)
+        self.assertEqual(11, r2.counter)
+
+
 class ManagerGetTestCase(DatabaseTestCase):
     def test_get_does_not_exist(self):
-        class Record(Model):
-            pk = LongField()
-            data = StringField()
+        class Record(models.Model):
+            pk = models.LongField()
+            data = models.StringField()
 
         with self.assertRaises(Record.DoesNotExist):
             Record.objects.get(pk=1L)
 
     def test_get_multiple_objects_returned(self):
-        class Record(Model):
-            id = LongField()
-            user_id = LongField(db_index=1)
-            data = StringField()
+        class Record(models.Model):
+            id = models.LongField()
+            user_id = models.LongField(db_index=1)
+            data = models.StringField()
 
             meta = {
                 'db_alias': self.another_space_alias
@@ -135,27 +176,27 @@ class ManagerGetTestCase(DatabaseTestCase):
             Record.objects.get(user_id=1L)
 
     def test_get_non_existent_field(self):
-        class Record(Model):
-            pk = LongField()
-            data = StringField()
+        class Record(models.Model):
+            pk = models.LongField()
+            data = models.StringField()
 
         with self.assertRaises(ValueError):
             Record.objects.get(non_existent_field=1L)
 
     def test_get_primary_key_not_defined(self):
-        class Record(Model):
-            data = StringField()
+        class Record(models.Model):
+            data = models.StringField()
 
         with self.assertRaises(ValueError):
             Record.objects.get(data=u'test')
 
     def test_get_non_default_index(self):
-        class Record(Model):
-            user_id = LongField(db_index=0)
-            data = StringField()
-
         user_id = 1L
         data = u'test'
+
+        class Record(models.Model):
+            user_id = models.LongField(db_index=0)
+            data = models.StringField()
 
         r1 = Record(user_id=user_id, data=data)
         r1.save()
@@ -167,9 +208,9 @@ class ManagerGetTestCase(DatabaseTestCase):
 
 class ManagerFilterTestCase(DatabaseTestCase):
     def test_get_empty_list(self):
-        class Record(Model):
-            pk = LongField()
-            data = StringField()
+        class Record(models.Model):
+            pk = models.LongField()
+            data = models.StringField()
 
         records = Record.objects.filter(pk=1L)
 
@@ -177,74 +218,43 @@ class ManagerFilterTestCase(DatabaseTestCase):
         self.assertEqual(0, len(records))
 
     def test_get_list(self):
-        class Record(Model):
-            pk = LongField()
-            user_id = LongField(db_index=1)
-            data = StringField()
+        user_id = 1L
+
+        class Record(models.Model):
+            pk = models.LongField()
+            user_id = models.LongField(db_index=1)
+            data = models.StringField()
 
             meta = {
                 'db_alias': self.another_space_alias
             }
 
-        r1 = Record(pk=1L, user_id=1L, data=u'test1')
+        r1 = Record(pk=1L, user_id=user_id, data=u'test1')
         r1.save()
-        r2 = Record(pk=2L, user_id=1L, data=u'test1')
+        r2 = Record(pk=2L, user_id=user_id, data=u'test1')
         r2.save()
 
-        records = Record.objects.filter(user_id=1L)
+        records = Record.objects.filter(user_id=user_id)
 
         self.assertIsInstance(records, list)
         self.assertEqual(2, len(records))
 
+        for r in records:
+            self.assertIsInstance(r, models.Model)
+            self.assertEqual(user_id, r.user_id)
+
 
 class ManagerCreateTestCase(DatabaseTestCase):
     def test_create(self):
-        class Record(Model):
-            pk = LongField()
-            data = StringField()
+        pk = 1L
+        data = u'test'
 
-        data = u'test1'
+        class Record(models.Model):
+            pk = models.LongField()
+            data = models.StringField()
 
-        r = Record.objects.create(pk=1L, data=data)
+        r = Record.objects.create(pk=pk, data=data)
 
+        self.assertIsInstance(r, models.Model)
         self.assertEqual(data, r.data)
-
-
-class UpdateTestCase(DatabaseTestCase):
-    def test_update(self):
-        class Record(Model):
-            pk = LongField()
-            data = StringField()
-
-        r = Record(pk=1L, data=u'test1')
-        r.save()
-
-        r.update(data=u'test2')
-
-        r2 = Record.objects.get(pk=1L)
-        self.assertEqual(u'test2', r2.data)
-
-    def test_update_unkonown_operation(self):
-        class Record(Model):
-            pk = LongField()
-            counter = IntField()
-
-        r = Record(pk=1L, counter=1)
-        r.save()
-
-        with self.assertRaises(ValueError):
-            r.update(counter__unknown=10)
-
-    def test_update_add(self):
-        class Record(Model):
-            pk = LongField()
-            counter = IntField()
-
-
-        r = Record(pk=1L, counter=1)
-        r.save()
-
-        r.update(counter__add=10)
-
-        r2 = Record.objects.get(pk=1L)
-        self.assertEqual(11, r2.counter)
+        self.assertEqual(pk, r.pk)
