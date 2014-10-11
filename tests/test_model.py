@@ -6,13 +6,33 @@ from tarantism.tests import TestCase
 
 
 class ModelDefaultsTestCase(TestCase):
-    def test_defaults(self):
+    def test_simple(self):
         default_pk = 1L
-        default_data = u'Test data'
+        default_data = u'test'
 
         class Record(Model):
             pk = LongField(default=default_pk)
             data = StringField(default=default_data)
+
+        r = Record()
+
+        self.assertEqual(default_pk, r.pk)
+        self.assertEqual(default_data, r.data)
+
+    def test_callable(self):
+        default_pk = 1L
+        default_data = u'test'
+
+        def get_default_pk():
+            return default_pk
+
+        class DataGetter(object):
+            def __call__(self):
+                return default_data
+
+        class Record(Model):
+            pk = LongField(default=get_default_pk)
+            data = StringField(default=DataGetter())
 
         r = Record()
 

@@ -56,9 +56,9 @@ class Model(object):
 
     def set_default_state(self):
         self._data = {}
-        for key, field in self._fields.iteritems():
-            value = getattr(self, key, None)
-            setattr(self, key, value)
+        for field_name, field in self._fields.iteritems():
+            value = getattr(self, field_name, None)
+            setattr(self, field_name, value)
 
     def to_db(self):
         data = {}

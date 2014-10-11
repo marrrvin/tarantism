@@ -55,6 +55,8 @@ class BaseField(object):
     def __set__(self, instance, value):
         if value is None and self.default is not None:
             value = self.default
+            if callable(value):
+                value = value()
 
         instance._data[self.name] = value
 
