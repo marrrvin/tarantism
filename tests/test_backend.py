@@ -17,8 +17,12 @@ class DatabaseTestCase(TestCase):
         }
         self.another_space_alias = 'the_new_space'
 
-        register_connection(DEFAULT_ALIAS, space=0, **self.tnt_config)
-        register_connection(self.another_space_alias, space=1, **self.tnt_config)
+        register_connection(
+            DEFAULT_ALIAS, space=0, **self.tnt_config
+        )
+        register_connection(
+            self.another_space_alias, space=1, **self.tnt_config
+        )
 
         self.space = get_space(DEFAULT_ALIAS)
         self.another_space = get_space(self.another_space_alias)
@@ -137,7 +141,6 @@ class ModelUpdateTestCase(DatabaseTestCase):
         class Record(models.Model):
             pk = models.LongField()
             counter = models.IntField()
-
 
         r = Record(pk=1L, counter=1)
         r.save()

@@ -91,21 +91,24 @@ class IntField(BaseField):
             value = self.python_type(value)
         except ValueError:
             raise ValidationError(
-                '{name} field error: {value} could not be converted to {type}.'.format(
+                '{name} field error: '
+                '{value} could not be converted to {type}.'.format(
                     name=self.name, value=value, type=self.python_type
                 )
             )
 
         if self.min_value is not None and value < self.min_value:
             raise ValidationError(
-                '{name} field error: value {value} is less than {min_value}'.format(
+                '{name} field error: '
+                'value {value} is less than {min_value}'.format(
                     name=self.name, value=value, min_value=self.min_value
                 )
             )
 
         if self.max_value is not None and value > self.max_value:
             raise ValidationError(
-                '{name} field error: value {value} is greater than {max_value}'.format(
+                '{name} field error: '
+                'value {value} is greater than {max_value}'.format(
                     name=self.name, value=value, max_value=self.max_value
                 )
             )
@@ -128,7 +131,12 @@ DEFAULT_ENCODING = 'ascii'
 
 
 class StringField(BaseField):
-    def __init__(self, regex=None, max_length=None, min_length=None, encoding=None, **kwargs):
+    def __init__(self,
+                 regex=None,
+                 max_length=None,
+                 min_length=None,
+                 encoding=None,
+                 **kwargs):
         self.regex = re.compile(regex) if regex else None
         self.max_length = max_length
         self.min_length = min_length
@@ -153,28 +161,32 @@ class StringField(BaseField):
     def validate(self, value):
         if not isinstance(value, basestring):
             raise ValidationError(
-                '{name} field error: {value} could not be converted to {type}.'.format(
+                '{name} field error: '
+                '{value} could not be converted to {type}.'.format(
                     name=self.name, value=value, type=self.python_type
                 )
             )
 
         if self.min_length is not None and len(value) < self.min_length:
             raise ValidationError(
-                '{name} field error: value {value} length is less than {min_length}'.format(
+                '{name} field error: '
+                'value {value} length is less than {min_length}'.format(
                     name=self.name, value=value, min_length=self.min_length
                 )
             )
 
         if self.max_length is not None and len(value) > self.max_length:
             raise ValidationError(
-                '{name} field error: value {value} length is greater than {max_length}'.format(
+                '{name} field error: '
+                'value {value} length is greater than {max_length}'.format(
                     name=self.name, value=value, max_length=self.max_length
                 )
             )
 
         if self.regex is not None and self.regex.match(value) is None:
             raise ValidationError(
-                '{name} field error: value {value} did not match validation regex.'.format(
+                '{name} field error: '
+                'value {value} did not match validation regex.'.format(
                     name=self.name, value=value
                 )
             )

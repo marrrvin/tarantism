@@ -186,7 +186,8 @@ class Model(object):
     @classmethod
     def _dict_to_values(cls, data):
         return tuple([
-            data[field_name] for field_name in cls._fields_ordered if field_name in data
+            data[field_name] for field_name in cls._fields_ordered
+            if field_name in data
         ])
 
     def _get_primary_key_value(self):
