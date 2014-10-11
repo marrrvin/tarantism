@@ -5,7 +5,7 @@ from tarantism import StringField
 from tarantism.tests import TestCase
 
 
-class ModelTestCase(TestCase):
+class ModelDefaultsTestCase(TestCase):
     def test_defaults(self):
         default_pk = 1L
         default_data = u'Test data'
@@ -19,26 +19,30 @@ class ModelTestCase(TestCase):
         self.assertEqual(default_pk, r.pk)
         self.assertEqual(default_data, r.data)
 
-    def test_create(self):
+
+class ModelInitTestCase(TestCase):
+    def test_init(self):
+        pk = 1L
+        data = u'test'
+
         class Record(Model):
             pk = LongField()
             data = StringField()
-
-        pk = 1L
-        data = 'test'
 
         r = Record(pk=pk, data=data)
 
         self.assertEqual(pk, r.pk)
         self.assertEqual(data, r.data)
 
+
+class ModelSettersTestCase(TestCase):
     def test_setters(self):
+        pk = 1L
+        data = u'test'
+
         class Record(Model):
             pk = LongField()
             data = StringField()
-
-        pk = 1L
-        data = 'test'
 
         r = Record()
         r.pk = pk
@@ -47,6 +51,8 @@ class ModelTestCase(TestCase):
         self.assertEqual(pk, r.pk)
         self.assertEqual(data, r.data)
 
+
+class ModelDictLikeTestCase(TestCase):
     def test_iter(self):
         class Record(Model):
             pk = LongField()
@@ -62,22 +68,22 @@ class ModelTestCase(TestCase):
         for i, field_name in enumerate(r):
             self.assertEqual(data[field_name], getattr(r, field_name))
 
-    def test_dict_get_fields_ok(self):
-        class Record(Model):
-            pk = LongField()
-            data = StringField()
-
+    def test_get_defined_fields(self):
         data = {
             'pk': 1L,
             'data': u'test'
         }
+
+        class Record(Model):
+            pk = LongField()
+            data = StringField()
 
         r = Record(**data)
 
         for key, value in data.iteritems():
             self.assertEqual(value, r[key])
 
-    def test_dict_get_not_defined_field(self):
+    def test_get_not_defined_field(self):
         class Record(Model):
             pk = LongField()
             data = StringField()
@@ -86,18 +92,22 @@ class ModelTestCase(TestCase):
         with self.assertRaises(KeyError):
             r['not_defined_field']
 
-    def test_dict_set_field(self):
+    def test_set_defined_fields(self):
+        pk = 1L
+        data = u'test'
+
         class Record(Model):
             pk = LongField()
             data = StringField()
 
-        pk = 1L
         r = Record()
         r['pk'] = pk
+        r['data'] = data
 
         self.assertEqual(pk, r.pk)
+        self.assertEqual(data, r.data)
 
-    def test_dict_set_not_defined_field(self):
+    def test_set_not_defined_field(self):
         class Record(Model):
             pk = LongField()
             data = StringField()
