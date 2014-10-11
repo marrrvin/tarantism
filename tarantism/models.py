@@ -85,28 +85,32 @@ class Model(object):
 
         data = self.to_db()
 
-        self.insert(data)
-
-        return self
+        return self.insert(data)
 
     def insert(self, data):
         values = self._dict_to_values(data)
 
-        return self.get_space().insert(values)
+        self.get_space().insert(values)
+
+        return self
 
     def update(self, **kwargs):
         primary_key_value = self._get_primary_key_value()
 
         changes = self._make_changes_struct(kwargs)
 
-        return self.get_space().update(
+        values = self.get_space().update(
             primary_key_value, changes
-        )
+        ).pop()
+
+        return self.__class__(**self._values_to_dict(values))
 
     def delete(self):
         primary_key_value = self._get_primary_key_value()
 
-        return self.get_space().delete(primary_key_value)
+        values = self.get_space().delete(primary_key_value)
+
+        return self.__class__(**self._values_to_dict(values))
 
     @classmethod
     def _get_schema_params(cls):

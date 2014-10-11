@@ -48,7 +48,9 @@ class ModelSaveTestCase(DatabaseTestCase):
         pk = 1L
 
         r = Record(pk=pk, data='test')
-        r.save()
+        returned_value = r.save()
+
+        self.assertIsInstance(returned_value, Record)
 
         response = self.space.select(pk)
 
@@ -59,30 +61,32 @@ class ModelSaveTestCase(DatabaseTestCase):
 
 class ModelDeleteTestCase(DatabaseTestCase):
     def test_delete_existent(self):
+        pk = 1L
+
         class Record(models.Model):
             pk = models.LongField()
             data = models.StringField()
-            secodary_key = models.IntField()
+            secondary_key = models.IntField()
 
-        pk = 1L
-
-        r = Record(pk=pk, data=u'test', secodary_key=1L)
+        r = Record(pk=pk, data=u'test', secondary_key=1L)
         r.save()
-        r.delete()
+        returned_value = r.delete()
+
+        self.assertIsInstance(returned_value, Record)
 
         with self.assertRaises(DoesNotExist):
             Record.objects.get(pk=pk)
 
     def test_delete_non_default_primary_key(self):
+        user_id = 1L
+        data = u'test'
+
         class Record(models.Model):
             id = models.LongField(
                 primary_key=True,
                 db_index=0
             )
             data = models.StringField()
-
-        user_id = 1L
-        data = u'test'
 
         r = Record(id=user_id, data=data)
         r.save()
@@ -92,14 +96,14 @@ class ModelDeleteTestCase(DatabaseTestCase):
             Record.objects.get(id=user_id)
 
     def test_delete_primary_key_not_defined(self):
+        user_id = 1L
+        data = u'test'
+
         class Record(models.Model):
             id = models.LongField(
                 db_index=0
             )
             data = models.StringField()
-
-        user_id = 1L
-        data = u'test'
 
         r = Record(id=user_id, data=data)
         r.save()
@@ -121,7 +125,10 @@ class ModelUpdateTestCase(DatabaseTestCase):
         r = Record(pk=pk, data=init_value)
         r.save()
 
-        r.update(data=new_value)
+        return_value = r.update(data=new_value)
+
+        self.assertIsInstance(return_value, Record)
+        self.assertEqual(return_value.data, new_value)
 
         r2 = Record.objects.get(pk=pk)
         self.assertEqual(new_value, r2.data)
