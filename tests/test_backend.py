@@ -1,6 +1,4 @@
 
-from unittest2 import TestCase
-
 import tarantism.connection
 from tarantism import DEFAULT_ALIAS
 from tarantism import register_connection
@@ -11,6 +9,7 @@ from tarantism import IntField
 from tarantism import LongField
 from tarantism import StringField
 from tarantism import DoesNotExist
+from tarantism.tests import TestCase
 
 
 class DatabaseTestCase(TestCase):

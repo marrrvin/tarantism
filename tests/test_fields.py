@@ -1,7 +1,5 @@
 # coding: utf8
 
-from unittest2 import TestCase
-
 from tarantism import Model
 from tarantism import BaseField
 from tarantism import IntField
@@ -9,12 +7,13 @@ from tarantism import LongField
 from tarantism import StringField
 from tarantism import BytesField
 from tarantism import ValidationError
+from tarantism.tests import TestCase
 
 
 class BaseFieldTestCase(TestCase):
     def test_interface_behaviour(self):
-        field = BaseField()
         value = u'test'
+        field = BaseField()
 
         self.assertEqual(value, field.to_python(value))
         self.assertIsNone(field.validate(value))

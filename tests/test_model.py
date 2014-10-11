@@ -1,9 +1,8 @@
 
-from unittest2 import TestCase
-
 from tarantism import Model
 from tarantism import LongField
 from tarantism import StringField
+from tarantism.tests import TestCase
 
 
 class ModelTestCase(TestCase):

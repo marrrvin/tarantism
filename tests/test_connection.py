@@ -1,10 +1,10 @@
 
-from unittest2 import TestCase
 from mock import patch
 
 from tarantool import Connection
 from tarantool.space import Space
 
+from tarantism.tests import TestCase
 from tarantism import register_connection
 from tarantism import connect
 from tarantism import disconnect
