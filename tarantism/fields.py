@@ -36,15 +36,7 @@ class BaseField(object):
 
     @property
     def db_type(self):
-        raise NotImplementedError(
-            'BaseField is abstract and has no db_type.'
-        )
-
-    @property
-    def python_type(self):
-        raise NotImplementedError(
-            'BaseField is abstract and has no python_type.'
-        )
+        return tarantool.STR
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -75,27 +67,25 @@ class IntField(BaseField):
         self.min_value = min_value
         self.max_value = max_value
 
+        self._type_factory = int
+
         super(IntField, self).__init__(**kwargs)
 
     @property
     def db_type(self):
         return tarantool.NUM
 
-    @property
-    def python_type(self):
-        return int
-
     def to_python(self, value):
-        return self.python_type(value)
+        return self._type_factory(value)
 
     def validate(self, value):
         try:
-            value = self.python_type(value)
+            value = self._type_factory(value)
         except ValueError:
             raise ValidationError(
                 '{name} field error: '
                 '{value} could not be converted to {type}.'.format(
-                    name=self.name, value=value, type=self.python_type
+                    name=self.name, value=value, type=self._type_factory
                 )
             )
 
@@ -120,52 +110,35 @@ class LongField(IntField):
     def __init__(self, **kwargs):
         super(LongField, self).__init__(**kwargs)
 
+        self._type_factory = long
+
     @property
     def db_type(self):
         return tarantool.NUM64
-
-    @property
-    def python_type(self):
-        return long
 
 
 DEFAULT_ENCODING = 'utf8'
 
 
-class StringField(BaseField):
+class BytesField(BaseField):
     def __init__(self,
                  regex=None,
                  max_length=None,
                  min_length=None,
-                 encoding=None,
                  **kwargs):
         self.regex = re.compile(regex) if regex else None
         self.max_length = max_length
         self.min_length = min_length
-        self.encoding = encoding or DEFAULT_ENCODING
 
-        super(StringField, self).__init__(**kwargs)
-
-    @property
-    def db_type(self):
-        return tarantool.STR
-
-    @property
-    def python_type(self):
-        return unicode
-
-    def to_db(self, value):
-        return value.encode(self.encoding)
-
-    def to_python(self, value):
-        return value.decode(self.encoding)
+        super(BytesField, self).__init__(**kwargs)
 
     def validate(self, value):
         if not isinstance(value, basestring):
             raise ValidationError(
                 '{name} field error: '
-                '{value} could not be converted to {type}.'.format(
-                    name=self.name, value=value, type=self.python_type
+                '{value} has incorrect type {type} '
+                'and could not be converted to string.'.format(
+                    name=self.name, value=value, type=type(value)
                 )
             )
 
@@ -194,7 +167,14 @@ class StringField(BaseField):
             )
 
 
-class BytesField(StringField):
-    @property
-    def python_type(self):
-        return str
+class StringField(BytesField):
+    def __init__(self, encoding=None, **kwargs):
+        self.encoding = encoding or DEFAULT_ENCODING
+
+        super(StringField, self).__init__(**kwargs)
+
+    def to_db(self, value):
+        return value.encode(self.encoding)
+
+    def to_python(self, value):
+        return value.decode(self.encoding)

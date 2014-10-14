@@ -18,12 +18,6 @@ class BaseFieldTestCase(TestCase):
         self.assertEqual(value, field.to_python(value))
         self.assertIsNone(field.validate(value))
 
-        with self.assertRaises(NotImplementedError):
-            field.python_type
-
-        with self.assertRaises(NotImplementedError):
-            field.db_type
-
 
 class FieldRequiredValidationTestCase(TestCase):
     def test_fail_on_required_field(self):
@@ -169,6 +163,6 @@ class ValidationOkTestCase(TestCase):
             pk = LongField(min_value=0)
             data = StringField(min_length=1, max_length=100)
 
-        r = Record(pk=1L, data='test')
+        r = Record(pk=1L, data=u'test')
 
         self.assertIsNone(r.validate())
