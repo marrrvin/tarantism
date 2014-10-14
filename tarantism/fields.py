@@ -129,7 +129,7 @@ class LongField(IntField):
         return long
 
 
-DEFAULT_ENCODING = 'ascii'
+DEFAULT_ENCODING = 'utf8'
 
 
 class StringField(BaseField):

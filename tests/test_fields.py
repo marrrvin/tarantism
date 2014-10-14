@@ -94,7 +94,7 @@ class LongFieldValidationTestCase(TestCase):
 class StringFieldSerializationTestCase(TestCase):
     def test_non_ascii_chars(self):
         value = u'тест'
-        field = StringField(encoding='cp1251')
+        field = StringField()
 
         value_to_db = field.to_db(value)
         value_to_python = field.to_python(value_to_db)
