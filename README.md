@@ -6,6 +6,14 @@ Tarantism - это минималистичный ORM для NOSQL базы да
 
 [![Build Status](https://travis-ci.org/marrrvin/tarantism.svg?branch=master)](https://travis-ci.org/marrrvin/tarantism)
 
+## Зачем?
+
+ORM берет на себя ряд рутинных операций:
+
+* Описание типов и их валидация.
+* Сериализация/десериализация.
+* Работа с соединениями.
+
 ## Пример использования
 
 ```python
