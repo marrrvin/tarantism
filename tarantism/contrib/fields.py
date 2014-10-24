@@ -16,3 +16,19 @@ class JsonField(BaseField):
 
     def to_python(self, value):
         return json.loads(value, **self.load_kwargs)
+
+
+class ProtobufField(BaseField):
+    def __init__(self, message_class, *args, **kwargs):
+        self.message_class = message_class
+
+        super(ProtobufField, self).__init__(*args, **kwargs)
+
+    def to_db(self, value):
+        return value.SerializeToString()
+
+    def to_python(self, value):
+        message = self.message_class()
+        message.ParseFromString(value)
+
+        return message
