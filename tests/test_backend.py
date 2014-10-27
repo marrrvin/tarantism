@@ -229,6 +229,7 @@ class ManagerFilterTestCase(DatabaseTestCase):
 
     def test_get_list(self):
         user_id = 1L
+        data = u'test1'
 
         class Record(models.Model):
             pk = models.LongField()
@@ -239,9 +240,9 @@ class ManagerFilterTestCase(DatabaseTestCase):
                 'db_alias': self.another_space_alias
             }
 
-        r1 = Record(pk=1L, user_id=user_id, data=u'test1')
+        r1 = Record(pk=1L, user_id=user_id, data=data)
         r1.save()
-        r2 = Record(pk=2L, user_id=user_id, data=u'test1')
+        r2 = Record(pk=2L, user_id=user_id, data=data)
         r2.save()
 
         records = Record.objects.filter(user_id=user_id)
@@ -253,6 +254,8 @@ class ManagerFilterTestCase(DatabaseTestCase):
             self.assertIsInstance(r, models.Model)
             self.assertEqual(user_id, r.user_id)
             self.assertIsInstance(r.user_id, long)
+            self.assertEqual(data, r.data)
+            self.assertIsInstance(data, unicode)
 
 
 class ManagerCreateTestCase(DatabaseTestCase):
