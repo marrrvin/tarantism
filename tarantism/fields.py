@@ -36,7 +36,7 @@ class BaseField(object):
 
     @property
     def db_type(self):
-        return tarantool.STR
+        return tarantool.RAW
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -172,6 +172,10 @@ class StringField(BytesField):
         self.encoding = encoding or DEFAULT_ENCODING
 
         super(StringField, self).__init__(**kwargs)
+
+    @property
+    def db_type(self):
+        return tarantool.STR
 
     def to_db(self, value):
         return value.encode(self.encoding)
