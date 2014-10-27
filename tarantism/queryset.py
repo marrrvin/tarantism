@@ -41,8 +41,8 @@ class QuerySet(object):
 
         model_list = []
         for values in response:
-            model_data = self._model_class._values_to_dict(values)
-            model_list.append(self._model_class(**model_data))
+            raw_data = self._model_class._values_to_dict(values)
+            model_list.append(self._model_class._model_from_data(raw_data))
 
         return model_list
 

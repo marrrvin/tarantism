@@ -252,6 +252,7 @@ class ManagerFilterTestCase(DatabaseTestCase):
         for r in records:
             self.assertIsInstance(r, models.Model)
             self.assertEqual(user_id, r.user_id)
+            self.assertIsInstance(r.user_id, long)
 
 
 class ManagerCreateTestCase(DatabaseTestCase):

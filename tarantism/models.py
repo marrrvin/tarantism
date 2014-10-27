@@ -54,6 +54,15 @@ class Model(object):
             cls._meta.get('db_alias', DEFAULT_ALIAS)
         )
 
+    @classmethod
+    def _model_from_data(cls, raw_data):
+        data = {}
+        for field_name, field in cls._fields.iteritems():
+            if field_name in raw_data:
+                data[field_name] = field.to_python(raw_data[field_name])
+
+        return cls(**data)
+
     def set_default_state(self):
         self._data = {}
         for field_name, field in self._fields.iteritems():
