@@ -1,1 +1,1 @@
-tarantool<0.4
+tarantool==0.3.5
