@@ -190,8 +190,16 @@ class DateTimeField(BaseField):
         super(DateTimeField, self).__init__(**kwargs)
 
     def to_db(self, value):
-        if isinstance(value, datetime):
-            return value.strftime(self.datetime_format)
+        return value.strftime(self.datetime_format)
 
     def to_python(self, value):
         return datetime.strptime(value, self.datetime_format)
+
+    def validate(self, value):
+        if not isinstance(value, datetime):
+            raise ValidationError(
+                '{name} field error: '
+                '{value} has incorrect type {type}.'.format(
+                    name=self.name, value=value, type=type(value)
+                )
+            )

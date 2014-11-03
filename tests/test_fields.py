@@ -172,6 +172,15 @@ class BytesFieldValidationTestCase(TestCase):
             field.validate(value)
 
 
+class DateTimeFieldValidationTestCase(TestCase):
+    def test_fail_on_invalid_type(self):
+        value = {}
+        field = DateTimeField()
+
+        with self.assertRaises(ValidationError):
+            field.validate(value)
+
+
 class DateTimeFieldSerializationTestCase(TestCase):
     def test_base(self):
         value = datetime.now()
