@@ -1,5 +1,7 @@
 # coding: utf8
 
+from datetime import datetime
+
 import tarantool
 
 from tarantism import Model
@@ -8,6 +10,7 @@ from tarantism import IntField
 from tarantism import LongField
 from tarantism import StringField
 from tarantism import BytesField
+from tarantism import DateTimeField
 from tarantism import ValidationError
 from tarantism.tests import TestCase
 
@@ -167,6 +170,20 @@ class BytesFieldValidationTestCase(TestCase):
 
         with self.assertRaises(ValidationError):
             field.validate(value)
+
+
+class DateTimeFieldSerializationTestCase(TestCase):
+    def test_base(self):
+        value = datetime.now()
+        field = DateTimeField()
+
+        value_to_db = field.to_db(value)
+        value_to_python = field.to_python(value_to_db)
+
+        self.assertIsInstance(value_to_db, str)
+        self.assertIsInstance(value_to_python, datetime)
+
+        self.assertEqual(value_to_python, value)
 
 
 class ValidationOkTestCase(TestCase):

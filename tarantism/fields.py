@@ -1,5 +1,7 @@
 
 import re
+from datetime import date
+from datetime import datetime
 
 import tarantool
 
@@ -7,7 +9,8 @@ from tarantism.errors import ValidationError
 
 
 __all__ = [
-    'BaseField', 'IntField', 'LongField', 'StringField', 'BytesField'
+    'BaseField', 'IntField', 'LongField', 'StringField', 'BytesField',
+    'DateTimeField', 'DEFAULT_DATETIME_FORMAT'
 ]
 
 
@@ -173,3 +176,22 @@ class StringField(BytesField):
 
     def to_python(self, value):
         return value.decode('utf8')
+
+
+DEFAULT_DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
+
+
+class DateTimeField(BaseField):
+    def __init__(self,
+                 datetime_format=DEFAULT_DATETIME_FORMAT,
+                 **kwargs):
+        self.datetime_format = datetime_format
+
+        super(DateTimeField, self).__init__(**kwargs)
+
+    def to_db(self, value):
+        if isinstance(value, datetime):
+            return value.strftime(self.datetime_format)
+
+    def to_python(self, value):
+        return datetime.strptime(value, self.datetime_format)
