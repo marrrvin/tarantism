@@ -2,7 +2,6 @@
 __all__ = [
     'DoesNotExist',
     'MultipleObjectsReturned',
-    'ImproperlyConfigured',
     'ValidationError'
 ]
 
@@ -12,10 +11,6 @@ class DoesNotExist(Exception):
 
 
 class MultipleObjectsReturned(Exception):
-    pass
-
-
-class ImproperlyConfigured(Exception):
     pass
 
 
