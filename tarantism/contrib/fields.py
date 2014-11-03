@@ -3,6 +3,8 @@ import json
 
 from tarantism.fields import BaseField
 
+__all__ = ['JsonField', 'ProtobufField']
+
 
 class JsonField(BaseField):
     def __init__(self, *args, **kwargs):
