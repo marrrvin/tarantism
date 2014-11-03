@@ -7,8 +7,7 @@ from tarantism.errors import ValidationError
 
 
 __all__ = [
-    'BaseField', 'IntField', 'LongField', 'StringField', 'BytesField',
-    'DEFAULT_ENCODING'
+    'BaseField', 'IntField', 'LongField', 'StringField', 'BytesField'
 ]
 
 
@@ -117,9 +116,6 @@ class LongField(IntField):
         return tarantool.NUM64
 
 
-DEFAULT_ENCODING = 'utf8'
-
-
 class BytesField(BaseField):
     def __init__(self,
                  regex=None,
@@ -168,17 +164,12 @@ class BytesField(BaseField):
 
 
 class StringField(BytesField):
-    def __init__(self, encoding=None, **kwargs):
-        self.encoding = encoding or DEFAULT_ENCODING
-
-        super(StringField, self).__init__(**kwargs)
-
     @property
     def db_type(self):
         return tarantool.STR
 
     def to_db(self, value):
-        return value.encode(self.encoding)
+        return value.encode('utf8')
 
     def to_python(self, value):
-        return value.decode(self.encoding)
+        return value.decode('utf8')
