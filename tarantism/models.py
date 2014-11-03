@@ -24,7 +24,7 @@ class Model(object):
     def __init__(self, **kwargs):
         self._data = {}
 
-        self.set_default_state()
+        self.reset()
 
         for key, value in kwargs.iteritems():
             if key in self._fields:
@@ -63,7 +63,7 @@ class Model(object):
 
         return cls(**data)
 
-    def set_default_state(self):
+    def reset(self):
         self._data = {}
         for field_name, field in self._fields.iteritems():
             value = getattr(self, field_name, None)
