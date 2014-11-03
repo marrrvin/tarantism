@@ -1,5 +1,7 @@
 # coding: utf8
 
+import tarantool
+
 from tarantism import Model
 from tarantism import BaseField
 from tarantism import IntField
@@ -11,12 +13,13 @@ from tarantism.tests import TestCase
 
 
 class BaseFieldTestCase(TestCase):
-    def test_interface_behaviour(self):
+    def test_interface(self):
         value = u'test'
         field = BaseField()
 
         self.assertEqual(value, field.to_python(value))
         self.assertIsNone(field.validate(value))
+        self.assertEqual(tarantool.RAW, field.db_type)
 
 
 class FieldRequiredValidationTestCase(TestCase):
