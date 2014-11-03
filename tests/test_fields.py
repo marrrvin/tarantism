@@ -1,6 +1,7 @@
 # coding: utf8
 
 from datetime import datetime
+from decimal import Decimal
 
 import tarantool
 
@@ -11,6 +12,7 @@ from tarantism import LongField
 from tarantism import StringField
 from tarantism import BytesField
 from tarantism import DateTimeField
+from tarantism import DecimalField
 from tarantism import ValidationError
 from tarantism.tests import TestCase
 
@@ -110,6 +112,7 @@ class StringFieldSerializationTestCase(TestCase):
 
         self.assertIsInstance(value_to_db, str)
         self.assertIsInstance(value_to_python, unicode)
+        self.assertEqual(value_to_python, value)
 
 
 class StringFieldValidationTestCase(TestCase):
@@ -191,7 +194,19 @@ class DateTimeFieldSerializationTestCase(TestCase):
 
         self.assertIsInstance(value_to_db, str)
         self.assertIsInstance(value_to_python, datetime)
+        self.assertEqual(value_to_python, value)
 
+
+class DecimalFieldSerializationTestCase(TestCase):
+    def test_base(self):
+        value = Decimal(1.01)
+        field = DecimalField()
+
+        value_to_db = field.to_db(value)
+        value_to_python = field.to_python(value_to_db)
+
+        self.assertIsInstance(value_to_db, str)
+        self.assertIsInstance(value_to_python, Decimal)
         self.assertEqual(value_to_python, value)
 
 

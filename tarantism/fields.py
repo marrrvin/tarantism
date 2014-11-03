@@ -1,7 +1,7 @@
 
 import re
-from datetime import date
 from datetime import datetime
+from decimal import Decimal
 
 import tarantool
 
@@ -10,7 +10,8 @@ from tarantism.errors import ValidationError
 
 __all__ = [
     'BaseField', 'IntField', 'LongField', 'StringField', 'BytesField',
-    'DateTimeField', 'DEFAULT_DATETIME_FORMAT'
+    'DateTimeField', 'DEFAULT_DATETIME_FORMAT',
+    'DecimalField',
 ]
 
 
@@ -203,3 +204,14 @@ class DateTimeField(BaseField):
                     name=self.name, value=value, type=type(value)
                 )
             )
+
+
+class DecimalField(BaseField):
+    def __init__(self, **kwargs):
+        super(DecimalField, self).__init__(**kwargs)
+
+    def to_db(self, value):
+        return str(value)
+
+    def to_python(self, value):
+        return Decimal(value)
