@@ -13,13 +13,22 @@ from tarantism.tests import TestCase
 
 
 class BaseFieldTestCase(TestCase):
-    def test_interface(self):
-        value = u'test'
+    def test_public_interface(self):
         field = BaseField()
+        value = u'test'
 
         self.assertEqual(value, field.to_python(value))
         self.assertIsNone(field.validate(value))
         self.assertEqual(tarantool.RAW, field.db_type)
+
+    def test_descriptor(self):
+        field = BaseField()
+        instance = None
+        owner = object()
+
+        self.assertEqual(
+            BaseField.__get__(field, instance, owner), field
+        )
 
 
 class FieldRequiredValidationTestCase(TestCase):
