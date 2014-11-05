@@ -199,7 +199,7 @@ class DateTimeFieldSerializationTestCase(TestCase):
 
 class DecimalFieldSerializationTestCase(TestCase):
     def test_base(self):
-        value = Decimal(1.01)
+        value = Decimal('1.01')
         field = DecimalField()
 
         value_to_db = field.to_db(value)
