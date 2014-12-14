@@ -16,7 +16,9 @@ from tarantism import ConnectionError
 class ConnectionTestCase(TestCase):
     def assert_connection(self, connection, host, port):
         self.assertIsInstance(connection, Connection)
-        self.assertEqual(True, connection.connected)
+
+        ping_time = connection.ping()
+        self.assertTrue(ping_time > 0)
         self.assertEqual(host, connection.host)
         self.assertEqual(port, connection.port)
 

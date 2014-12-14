@@ -7,7 +7,6 @@ import tarantool
 
 from tarantism.errors import ValidationError
 
-
 __all__ = [
     'BaseField', 'IntField', 'LongField', 'StringField', 'BytesField',
     'DateTimeField', 'DEFAULT_DATETIME_FORMAT',
@@ -37,9 +36,9 @@ class BaseField(object):
         self.creation_counter = BaseField.creation_counter
         BaseField.creation_counter += 1
 
-    @property
-    def db_type(self):
-        return tarantool.RAW
+    @classmethod
+    def _get_tarantool_type(self):
+        return str
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -74,9 +73,9 @@ class IntField(BaseField):
 
         super(IntField, self).__init__(**kwargs)
 
-    @property
-    def db_type(self):
-        return tarantool.NUM
+    @classmethod
+    def _get_tarantool_type(cls):
+        return int
 
     def to_python(self, value):
         return self._type_factory(value)
@@ -115,9 +114,9 @@ class LongField(IntField):
 
         self._type_factory = long
 
-    @property
-    def db_type(self):
-        return tarantool.NUM64
+    def _get_tarantool_type(self):
+        # int() implicitly converts to long on int overflow
+        return int
 
 
 class BytesField(BaseField):
@@ -168,9 +167,8 @@ class BytesField(BaseField):
 
 
 class StringField(BytesField):
-    @property
-    def db_type(self):
-        return tarantool.STR
+    def _get_tarantool_type(self):
+        return unicode
 
     def to_db(self, value):
         return value.encode('utf8')
