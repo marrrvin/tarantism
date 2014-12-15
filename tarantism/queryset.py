@@ -1,6 +1,4 @@
 
-from tarantool.schema import Schema
-
 __all__ = ['QuerySetManager', 'QuerySet']
 
 DEFAULT_PRIMARY_KEY_FIELD_NAME = 'pk'
@@ -20,16 +18,9 @@ class QuerySet(object):
     def __init__(self, model_class, space):
         self._model_class = model_class
         self._space = space
-        self._schema_configured = False
 
     @property
     def space(self):
-        if not self._schema_configured:
-            self._space.connection.schema = Schema({
-                self._space.space_no: self._model_class._get_schema_params()
-            })
-            self._schema_configured = True
-
         return self._space
 
     def filter(self, **kwargs):
@@ -37,7 +28,8 @@ class QuerySet(object):
 
         index = self._get_index_number_by_field_name(field_name)
 
-        response = self.space.select(value, index=index)
+        field_types = self._model_class._get_tarantool_types()
+        response = self.space.select(value, index=index, field_types=field_types)
 
         model_list = []
         for values in response:

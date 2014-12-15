@@ -108,11 +108,13 @@ class Model(object):
 
         changes = self._make_changes_struct(kwargs)
 
-        values = self.get_space().update(
-            primary_key_value, changes
-        ).pop()
+        self.get_space().update(primary_key_value, changes)
 
-        return self.__class__(**self._values_to_dict(values))
+        # XXX
+        for field_name, field_value in kwargs.iteritems():
+            setattr(self, field_name, field_value)
+
+        return self
 
     def delete(self):
         primary_key_value = self._get_primary_key_value()
@@ -120,36 +122,6 @@ class Model(object):
         values = self.get_space().delete(primary_key_value)
 
         return self.__class__(**self._values_to_dict(values))
-
-    @classmethod
-    def _get_schema_params(cls):
-        schema_params = {
-            'name': cls.__name__,
-            'fields': {},
-            'indexes': {}
-        }
-
-        for field_number, field_name in enumerate(cls._fields_ordered):
-            field = cls._fields[field_name]
-
-            schema_params['fields'][field_number] = {
-                'name': field_name,
-                'type': field.db_type
-            }
-
-            if field.db_index is not None:
-                schema_params['indexes'][field.db_index] = {
-                    'name': field.name,
-                    'fields': [field_number]
-                }
-            # FIXME: hack for pk
-            elif field.name == 'pk':
-                schema_params['indexes'][0] = {
-                    'name': field.name,
-                    'fields': [0]
-                }
-
-        return schema_params
 
     @classmethod
     def _values_to_dict(cls, values):
@@ -163,6 +135,15 @@ class Model(object):
             data[field_name] for field_name in cls._fields_ordered
             if field_name in data
         ])
+
+    @classmethod
+    def _get_tarantool_types(cls):
+        field_types = []
+        for field_name in cls._fields_ordered:
+            field = cls._fields[field_name]
+            field_types.append(field._get_tarantool_type())
+
+        return tuple(field_types)
 
     def _get_primary_key_value(self):
         pk = getattr(self, 'pk', None)
