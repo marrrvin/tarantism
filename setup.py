@@ -6,23 +6,19 @@ from setuptools import find_packages
 with open('README.md') as fp:
     long_description = fp.readline()
 
-with open('requirements.txt') as fp:
-    requirements = [req.strip() for req in fp.readlines() if not req.startswith('--')]
-
 
 setup(
     name='tarantism',
     description='',
     long_description=long_description,
     version='0.1',
-    url='http://github.com/marrrvin/tarantism/',
+    url='https://gitlab.corp.mail.ru/target-web/tarantism',
     author='Sergey Orlov',
-    author_email='foobar@list.ru',
-    packages=find_packages(),
+    author_email='sergey.orlov@corp.mail.ru',
+    packages=find_packages(exclude=('tests', 'tests.contrib')),
     include_package_data=True,
     zip_safe=False,
     platforms='any',
-    install_requires=requirements,
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
