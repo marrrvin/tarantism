@@ -1,5 +1,4 @@
 
-import tarantism.connection
 from tarantism import DEFAULT_ALIAS
 from tarantism import register_connection
 from tarantism import get_space
@@ -33,10 +32,6 @@ class DatabaseTestCase(TestCase):
 
         disconnect(DEFAULT_ALIAS)
         disconnect(self.another_space_alias)
-
-        setattr(tarantism.connection, '_connection_settings', {})
-        setattr(tarantism.connection, '_connections', {})
-        setattr(tarantism.connection, '_spaces', {})
 
 
 class ModelSaveTestCase(DatabaseTestCase):

@@ -32,9 +32,9 @@ class ConnectionTestCase(TestCase):
         self.port = 33013
         self.space = 0
 
-    @patch.dict('tarantism.connection._connection_settings', {'q': {}})
-    @patch.dict('tarantism.connection._connections', {'q': {}})
-    @patch.dict('tarantism.connection._spaces', {'q': {}})
+    @patch.dict('tarantism.connection._connection_settings', {}, clear=True)
+    @patch.dict('tarantism.connection._connections', {}, clear=True)
+    @patch.dict('tarantism.connection._spaces', {}, clear=True)
     def test_register_connection(self):
         expected_connection_settings = {
             'host': self.host,
@@ -47,17 +47,17 @@ class ConnectionTestCase(TestCase):
         )
         self.assertEqual(connection_settings, expected_connection_settings)
 
-    @patch.dict('tarantism.connection._connection_settings', {'q': {}})
-    @patch.dict('tarantism.connection._connections', {'q': {}})
-    @patch.dict('tarantism.connection._spaces', {'q': {}})
+    @patch.dict('tarantism.connection._connection_settings', {}, clear=True)
+    @patch.dict('tarantism.connection._connections', {}, clear=True)
+    @patch.dict('tarantism.connection._spaces', {}, clear=True)
     def test_get_connection_non_existent_alias(self):
         non_existent_alias = 'unknown'
         with self.assertRaises(ValueError):
             get_connection(non_existent_alias)
 
-    @patch.dict('tarantism.connection._connection_settings', {'q': {}})
-    @patch.dict('tarantism.connection._connections', {'q': {}})
-    @patch.dict('tarantism.connection._spaces', {'q': {}})
+    @patch.dict('tarantism.connection._connection_settings', {}, clear=True)
+    @patch.dict('tarantism.connection._connections', {}, clear=True)
+    @patch.dict('tarantism.connection._spaces', {}, clear=True)
     def test_get_connection_with_reconnect(self):
         connect(
             self.alias, host=self.host, port=self.port, space=self.space
@@ -65,18 +65,33 @@ class ConnectionTestCase(TestCase):
         connection = get_connection(self.alias, reconnect=True)
         self.assert_connection(connection, self.host, self.port)
 
-    @patch.dict('tarantism.connection._connection_settings', {'q': {}})
-    @patch.dict('tarantism.connection._connections', {'q': {}})
-    @patch.dict('tarantism.connection._spaces', {'q': {}})
+    @patch.dict('tarantism.connection._connection_settings', {}, clear=True)
+    @patch.dict('tarantism.connection._connections', {}, clear=True)
+    @patch.dict('tarantism.connection._spaces', {}, clear=True)
     def test_connect_ok(self):
         connection = connect(
             self.alias, host=self.host, port=self.port, space=self.space
         )
         self.assert_connection(connection, self.host, self.port)
 
-    @patch.dict('tarantism.connection._connection_settings', {'q': {}})
-    @patch.dict('tarantism.connection._connections', {'q': {}})
-    @patch.dict('tarantism.connection._spaces', {'q': {}})
+    @patch.dict('tarantism.connection._connection_settings', {}, clear=True)
+    @patch.dict('tarantism.connection._connections', {}, clear=True)
+    @patch.dict('tarantism.connection._spaces', {}, clear=True)
+    def test_connect_ok_set_socket_timeout(self):
+        socket_timeout = 0.01
+        connection = connect(
+            self.alias,
+            host=self.host,
+            port=self.port,
+            space=self.space,
+            socket_timeout=socket_timeout
+        )
+        self.assert_connection(connection, self.host, self.port)
+        self.assertEqual(connection.socket_timeout, socket_timeout)
+
+    @patch.dict('tarantism.connection._connection_settings', {}, clear=True)
+    @patch.dict('tarantism.connection._connections', {}, clear=True)
+    @patch.dict('tarantism.connection._spaces', {}, clear=True)
     def test_connect_error(self):
         invalid_host = '127.0.0.2'
         invalid_port = 34013
@@ -87,18 +102,18 @@ class ConnectionTestCase(TestCase):
             self.alias, host=invalid_host, port=invalid_port, space=self.space
         )
 
-    @patch.dict('tarantism.connection._connection_settings', {'q': {}})
-    @patch.dict('tarantism.connection._connections', {'q': {}})
-    @patch.dict('tarantism.connection._spaces', {'q': {}})
+    @patch.dict('tarantism.connection._connection_settings', {}, clear=True)
+    @patch.dict('tarantism.connection._connections', {}, clear=True)
+    @patch.dict('tarantism.connection._spaces', {}, clear=True)
     def test_disconnect_non_existent_alias(self):
         non_existent_alias = 'unknown'
 
         disconnect(non_existent_alias)
 
-    @patch.dict('tarantism.connection._connection_settings', {'q': {}})
-    @patch.dict('tarantism.connection._connections', {'q': {}})
-    @patch.dict('tarantism.connection._spaces', {'q': {}})
-    def test_connect_ok(self):
+    @patch.dict('tarantism.connection._connection_settings', {}, clear=True)
+    @patch.dict('tarantism.connection._connections', {}, clear=True)
+    @patch.dict('tarantism.connection._spaces', {}, clear=True)
+    def test_register_connection_ok(self):
         register_connection(
             self.alias, host=self.host, port=self.port
         )
