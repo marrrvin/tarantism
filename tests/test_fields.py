@@ -3,8 +3,6 @@
 from datetime import datetime
 from decimal import Decimal
 
-import tarantool
-
 from tarantism import Model
 from tarantism import BaseField
 from tarantism import IntField
