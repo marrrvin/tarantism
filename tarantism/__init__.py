@@ -6,4 +6,4 @@ from tarantism.queryset import *
 from tarantism.errors import *
 
 
-__version__ = '0.1'
+__version__ = '0.1.1'
