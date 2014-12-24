@@ -5,13 +5,19 @@ from decimal import Decimal
 
 from tarantism import Model
 from tarantism import BaseField
-from tarantism import IntField
-from tarantism import LongField
 from tarantism import StringField
 from tarantism import BytesField
 from tarantism import DateTimeField
 from tarantism import DecimalField
 from tarantism import ValidationError
+from tarantism import Num32Field
+from tarantism import Num64Field
+from tarantism import INT32_MIN
+from tarantism import INT32_MAX
+from tarantism import INT64_MIN
+from tarantism import INT64_MAX
+from tarantism import IntField
+from tarantism import LongField
 from tarantism.tests import TestCase
 
 
@@ -37,7 +43,7 @@ class BaseFieldTestCase(TestCase):
 class FieldRequiredValidationTestCase(TestCase):
     def test_fail_on_required_field(self):
         class Record(Model):
-            pk = LongField(required=True)
+            pk = Num64Field(required=True)
 
         r = Record()
 
@@ -46,7 +52,7 @@ class FieldRequiredValidationTestCase(TestCase):
 
     def test_fail_on_required_field_by_default(self):
         class Record(Model):
-            pk = LongField()
+            pk = Num64Field()
 
         r = Record()
 
@@ -54,50 +60,86 @@ class FieldRequiredValidationTestCase(TestCase):
             r.validate()
 
 
-class IntFieldValidationTestCase(TestCase):
+class Num32FieldValidationTestCase(TestCase):
     def test_fail_on_invalid_type(self):
         value = 'invalid-value'
-        field = IntField(min_value=1)
+        field = Num32Field(min_value=1)
+
+        with self.assertRaises(ValidationError):
+            field.validate(value)
+
+    def test_fail_on_default_min_value(self):
+        value = INT32_MIN - 1
+        field = Num32Field()
+
+        with self.assertRaises(ValidationError):
+            field.validate(value)
+
+    def test_fail_on_default_max_value(self):
+        value = INT32_MAX + 1
+        field = Num32Field()
 
         with self.assertRaises(ValidationError):
             field.validate(value)
 
     def test_fail_on_min_value(self):
         value = -1
-        field = IntField(min_value=1)
+        field = Num32Field(min_value=1)
 
         with self.assertRaises(ValidationError):
             field.validate(value)
 
     def test_fail_on_max_value(self):
         value = 2L
-        field = IntField(max_value=1)
+        field = Num32Field(max_value=1)
 
         with self.assertRaises(ValidationError):
             field.validate(value)
 
+    def test_new_alias(self):
+        field = IntField()
+        self.assertIsInstance(field, Num32Field)
 
-class LongFieldValidationTestCase(TestCase):
+
+class Num64FieldValidationTestCase(TestCase):
     def test_fail_on_invalid_type(self):
         value = 'invalid-value'
-        field = LongField(min_value=1)
+        field = Num64Field(min_value=1)
+
+        with self.assertRaises(ValidationError):
+            field.validate(value)
+
+    def test_fail_on_default_min_value(self):
+        value = INT64_MIN - 1
+        field = Num32Field()
+
+        with self.assertRaises(ValidationError):
+            field.validate(value)
+
+    def test_fail_on_default_max_value(self):
+        value = INT64_MAX + 1
+        field = Num32Field()
 
         with self.assertRaises(ValidationError):
             field.validate(value)
 
     def test_fail_on_min_value(self):
         value = -1L
-        field = LongField(min_value=1)
+        field = Num64Field(min_value=1)
 
         with self.assertRaises(ValidationError):
             field.validate(value)
 
     def test_fail_on_max_value(self):
         value = 2L
-        field = LongField(max_value=1)
+        field = Num64Field(max_value=1)
 
         with self.assertRaises(ValidationError):
             field.validate(value)
+
+    def test_new_alias(self):
+        field = LongField()
+        self.assertIsInstance(field, Num64Field)
 
 
 class StringFieldSerializationTestCase(TestCase):
@@ -211,7 +253,7 @@ class DecimalFieldSerializationTestCase(TestCase):
 class ValidationOkTestCase(TestCase):
     def test_ok(self):
         class Record(Model):
-            pk = LongField(min_value=0)
+            pk = Num64Field(min_value=0)
             data = StringField(min_length=1, max_length=100)
 
         r = Record(pk=1L, data=u'test')

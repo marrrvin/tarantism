@@ -37,7 +37,7 @@ class DatabaseTestCase(TestCase):
 class ModelSaveTestCase(DatabaseTestCase):
     def test_save(self):
         class Record(models.Model):
-            pk = models.LongField()
+            pk = models.Num64Field()
             data = models.StringField()
 
         pk = 1L
@@ -59,9 +59,9 @@ class ModelDeleteTestCase(DatabaseTestCase):
         pk = 1L
 
         class Record(models.Model):
-            pk = models.LongField()
+            pk = models.Num64Field()
             data = models.StringField()
-            secondary_key = models.IntField()
+            secondary_key = models.Num32Field()
 
         r = Record(pk=pk, data=u'test', secondary_key=1L)
         r.save()
@@ -77,7 +77,7 @@ class ModelDeleteTestCase(DatabaseTestCase):
         data = u'test'
 
         class Record(models.Model):
-            id = models.LongField(
+            id = models.Num64Field(
                 primary_key=True,
                 db_index=0
             )
@@ -95,7 +95,7 @@ class ModelDeleteTestCase(DatabaseTestCase):
         data = u'test'
 
         class Record(models.Model):
-            id = models.LongField(
+            id = models.Num64Field(
                 db_index=0
             )
             data = models.StringField()
@@ -114,7 +114,7 @@ class ModelUpdateTestCase(DatabaseTestCase):
         new_value = u'test2'
 
         class Record(models.Model):
-            pk = models.LongField()
+            pk = models.Num64Field()
             data = models.StringField()
 
         r = Record(pk=pk, data=init_value)
@@ -130,8 +130,8 @@ class ModelUpdateTestCase(DatabaseTestCase):
 
     def test_update_unknown_operation(self):
         class Record(models.Model):
-            pk = models.LongField()
-            counter = models.IntField()
+            pk = models.Num64Field()
+            counter = models.Num32Field()
 
         r = Record(pk=1L, counter=1)
         r.save()
@@ -141,8 +141,8 @@ class ModelUpdateTestCase(DatabaseTestCase):
 
     def test_update_add(self):
         class Record(models.Model):
-            pk = models.LongField()
-            counter = models.IntField()
+            pk = models.Num64Field()
+            counter = models.Num32Field()
 
         r = Record(pk=1L, counter=1)
         r.save()
@@ -156,7 +156,7 @@ class ModelUpdateTestCase(DatabaseTestCase):
 class ManagerGetTestCase(DatabaseTestCase):
     def test_get_does_not_exist(self):
         class Record(models.Model):
-            pk = models.LongField()
+            pk = models.Num64Field()
             data = models.StringField()
 
         with self.assertRaises(Record.DoesNotExist):
@@ -164,8 +164,8 @@ class ManagerGetTestCase(DatabaseTestCase):
 
     def test_get_multiple_objects_returned(self):
         class Record(models.Model):
-            id = models.LongField()
-            user_id = models.LongField(db_index=1)
+            id = models.Num64Field()
+            user_id = models.Num64Field(db_index=1)
             data = models.StringField()
 
             meta = {
@@ -182,7 +182,7 @@ class ManagerGetTestCase(DatabaseTestCase):
 
     def test_get_non_existent_field(self):
         class Record(models.Model):
-            pk = models.LongField()
+            pk = models.Num64Field()
             data = models.StringField()
 
         with self.assertRaises(ValueError):
@@ -200,7 +200,7 @@ class ManagerGetTestCase(DatabaseTestCase):
         data = u'test'
 
         class Record(models.Model):
-            user_id = models.LongField(db_index=0)
+            user_id = models.Num64Field(db_index=0)
             data = models.StringField()
 
         r1 = Record(user_id=user_id, data=data)
@@ -214,7 +214,7 @@ class ManagerGetTestCase(DatabaseTestCase):
 class ManagerFilterTestCase(DatabaseTestCase):
     def test_get_empty_list(self):
         class Record(models.Model):
-            pk = models.LongField()
+            pk = models.Num64Field()
             data = models.StringField()
 
         records = Record.objects.filter(pk=1L)
@@ -227,8 +227,8 @@ class ManagerFilterTestCase(DatabaseTestCase):
         data = u'test1'
 
         class Record(models.Model):
-            pk = models.LongField()
-            user_id = models.LongField(db_index=1)
+            pk = models.Num64Field()
+            user_id = models.Num64Field(db_index=1)
             data = models.StringField()
 
             meta = {
@@ -259,7 +259,7 @@ class ManagerCreateTestCase(DatabaseTestCase):
         data = u'test'
 
         class Record(models.Model):
-            pk = models.LongField()
+            pk = models.Num64Field()
             data = models.StringField()
 
         r = Record.objects.create(pk=pk, data=data)
