@@ -77,7 +77,19 @@ class BaseField(object):
 
 
 class Num32Field(BaseField):
-    def __init__(self, min_value=INT32_MIN, max_value=INT32_MAX, **kwargs):
+    MIN = INT32_MIN
+    MAX = INT32_MAX
+
+    def __init__(self, min_value=None, max_value=None, **kwargs):
+        min_value = min_value or self.MIN
+        max_value = max_value or self.MAX
+
+        if min_value < self.MIN:
+            raise ValueError('min_value can not be less than {}.'.format(self.MIN))
+
+        if max_value > self.MAX:
+            raise ValueError('max_value can not be greater than {}.'.format(self.MAX))
+
         self.min_value = min_value
         self.max_value = max_value
 
@@ -121,7 +133,10 @@ class Num32Field(BaseField):
 
 
 class Num64Field(Num32Field):
-    def __init__(self, min_value=INT64_MIN, max_value=INT64_MAX, **kwargs):
+    MIN = INT64_MIN
+    MAX = INT64_MAX
+
+    def __init__(self, min_value=None, max_value=None, **kwargs):
         super(Num64Field, self).__init__(min_value, max_value, **kwargs)
 
         self._type_factory = long

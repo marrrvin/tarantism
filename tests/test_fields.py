@@ -96,6 +96,14 @@ class Num32FieldValidationTestCase(TestCase):
         with self.assertRaises(ValidationError):
             field.validate(value)
 
+    def test_invalid_min_value(self):
+        with self.assertRaises(ValueError):
+            Num32Field(min_value=INT32_MIN - 1)
+
+    def test_invalid_max_value(self):
+        with self.assertRaises(ValueError):
+            Num32Field(max_value=INT32_MAX + 1)
+
     def test_new_alias(self):
         field = IntField()
         self.assertIsInstance(field, Num32Field)
@@ -136,6 +144,14 @@ class Num64FieldValidationTestCase(TestCase):
 
         with self.assertRaises(ValidationError):
             field.validate(value)
+
+    def test_invalid_min_value(self):
+        with self.assertRaises(ValueError):
+            Num64Field(min_value=INT64_MIN - 1)
+
+    def test_invalid_max_value(self):
+        with self.assertRaises(ValueError):
+            Num64Field(max_value=INT64_MAX + 1)
 
     def test_new_alias(self):
         field = LongField()
