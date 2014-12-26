@@ -252,6 +252,23 @@ class ManagerFilterTestCase(DatabaseTestCase):
             self.assertEqual(data, r.data)
             self.assertIsInstance(data, unicode)
 
+    def test_get_ignore_not_described_tuple_elements(self):
+        pk = 1L
+        data = u'test1'
+
+        class Record(models.Model):
+            pk = models.LongField()
+            data = models.StringField()
+
+        Record.get_space().insert(
+            (pk, str(data), 'one', 'two', 'three')
+        )
+
+        record = Record.objects.get(pk=pk)
+
+        self.assertEqual(pk, record.pk)
+        self.assertEqual(data, record.data)
+
 
 class ManagerCreateTestCase(DatabaseTestCase):
     def test_create(self):
