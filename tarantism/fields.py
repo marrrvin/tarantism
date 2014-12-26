@@ -8,10 +8,22 @@ import tarantool
 from tarantism.errors import ValidationError
 
 __all__ = [
-    'BaseField', 'IntField', 'LongField', 'StringField', 'BytesField',
+    'BaseField',
+    'IntField', 'INT32_MIN', 'INT32_MAX', 'Num32Field',
+    'LongField', 'INT64_MIN', 'INT64_MAX', 'Num64Field',
+    'StringField', 'BytesField',
     'DateTimeField', 'DEFAULT_DATETIME_FORMAT',
     'DecimalField',
 ]
+
+
+INT32_MIN = -2147483648
+
+INT32_MAX = +2147483647
+
+INT64_MIN = -9223372036854775808
+
+INT64_MAX = +9223372036854775807
 
 
 class BaseField(object):
@@ -64,14 +76,26 @@ class BaseField(object):
         pass
 
 
-class IntField(BaseField):
+class Num32Field(BaseField):
+    MIN = INT32_MIN
+    MAX = INT32_MAX
+
     def __init__(self, min_value=None, max_value=None, **kwargs):
+        min_value = min_value or self.MIN
+        max_value = max_value or self.MAX
+
+        if min_value < self.MIN:
+            raise ValueError('min_value can not be less than {}.'.format(self.MIN))
+
+        if max_value > self.MAX:
+            raise ValueError('max_value can not be greater than {}.'.format(self.MAX))
+
         self.min_value = min_value
         self.max_value = max_value
 
         self._type_factory = int
 
-        super(IntField, self).__init__(**kwargs)
+        super(Num32Field, self).__init__(**kwargs)
 
     @classmethod
     def _get_tarantool_type(cls):
@@ -108,9 +132,12 @@ class IntField(BaseField):
             )
 
 
-class LongField(IntField):
-    def __init__(self, **kwargs):
-        super(LongField, self).__init__(**kwargs)
+class Num64Field(Num32Field):
+    MIN = INT64_MIN
+    MAX = INT64_MAX
+
+    def __init__(self, min_value=None, max_value=None, **kwargs):
+        super(Num64Field, self).__init__(min_value, max_value, **kwargs)
 
         self._type_factory = long
 
@@ -213,3 +240,8 @@ class DecimalField(BaseField):
 
     def to_python(self, value):
         return Decimal(value)
+
+
+# For backward compatibility
+IntField = Num32Field
+LongField = Num64Field

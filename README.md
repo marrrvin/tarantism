@@ -23,7 +23,7 @@ from tarantism import models
 
 class User(models.Model):
     pk = models.LongField()
-    age = models.IntField(
+    age = models.Num32Field(
         verbose_name=u'Age'
     )
     login = models.StringField(

@@ -1,6 +1,6 @@
 
 from tarantism import Model
-from tarantism import LongField
+from tarantism import Num64Field
 from tarantism import StringField
 from tarantism.tests import TestCase
 
@@ -11,7 +11,7 @@ class ModelDefaultsTestCase(TestCase):
         default_data = u'test'
 
         class Record(Model):
-            pk = LongField(default=default_pk)
+            pk = Num64Field(default=default_pk)
             data = StringField(default=default_data)
 
         r = Record()
@@ -31,7 +31,7 @@ class ModelDefaultsTestCase(TestCase):
                 return default_data
 
         class Record(Model):
-            pk = LongField(default=get_default_pk)
+            pk = Num64Field(default=get_default_pk)
             data = StringField(default=DataGetter())
 
         r = Record()
@@ -46,7 +46,7 @@ class ModelInitTestCase(TestCase):
         data = u'test'
 
         class Record(Model):
-            pk = LongField()
+            pk = Num64Field()
             data = StringField()
 
         r = Record(pk=pk, data=data)
@@ -61,7 +61,7 @@ class ModelSettersTestCase(TestCase):
         data = u'test'
 
         class Record(Model):
-            pk = LongField()
+            pk = Num64Field()
             data = StringField()
 
         r = Record()
@@ -75,7 +75,7 @@ class ModelSettersTestCase(TestCase):
 class ModelDictLikeTestCase(TestCase):
     def test_iter(self):
         class Record(Model):
-            pk = LongField()
+            pk = Num64Field()
             data = StringField()
 
         data = {
@@ -95,7 +95,7 @@ class ModelDictLikeTestCase(TestCase):
         }
 
         class Record(Model):
-            pk = LongField()
+            pk = Num64Field()
             data = StringField()
 
         r = Record(**data)
@@ -105,7 +105,7 @@ class ModelDictLikeTestCase(TestCase):
 
     def test_get_not_defined_field(self):
         class Record(Model):
-            pk = LongField()
+            pk = Num64Field()
             data = StringField()
 
         r = Record()
@@ -117,7 +117,7 @@ class ModelDictLikeTestCase(TestCase):
         data = u'test'
 
         class Record(Model):
-            pk = LongField()
+            pk = Num64Field()
             data = StringField()
 
         r = Record()
@@ -129,7 +129,7 @@ class ModelDictLikeTestCase(TestCase):
 
     def test_set_not_defined_field(self):
         class Record(Model):
-            pk = LongField()
+            pk = Num64Field()
             data = StringField()
 
         r = Record()

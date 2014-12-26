@@ -35,12 +35,9 @@ class Model(object):
 
     def __getitem__(self, name):
         try:
-            if name in self._fields_ordered:
-                return getattr(self, name)
+            return getattr(self, name)
         except AttributeError:
-            pass
-
-        raise KeyError(name)
+            raise KeyError(name)
 
     def __setitem__(self, name, value):
         if name not in self._fields:
