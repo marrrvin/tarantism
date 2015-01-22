@@ -47,7 +47,7 @@ def register_connection(alias, host=None, port=None, space=None, **kwargs):
 
     conn_settings = {
         'host': host or DEFAULT_HOST,
-        'port': port or DEFAULT_PORT,
+        'port': int(port) or DEFAULT_PORT,
         'space': space or DEFAULT_SPACE
     }
     conn_settings.update(kwargs)

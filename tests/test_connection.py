@@ -120,3 +120,15 @@ class ConnectionTestCase(TestCase):
 
         space = get_space(self.alias, reconnect=True)
         self.assert_space(space, self.space)
+
+
+    @patch.dict('tarantism.connection._connection_settings', {}, clear=True)
+    @patch.dict('tarantism.connection._connections', {}, clear=True)
+    @patch.dict('tarantism.connection._spaces', {}, clear=True)
+    def test_register_connection_invalid_port(self):
+        invalid_port = 'port'
+
+        with self.assertRaises(ValueError):
+            register_connection(
+                self.alias, host=self.host, port=invalid_port
+            )
