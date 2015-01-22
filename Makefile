@@ -39,7 +39,6 @@ inittest:
 	$(PIP_BIN) install -r test-requirements.txt
 
 test: init inittest clean
-	MOCKERNAUT_SETTINGS=$(SETTINGS_PATH)/test_config.py \
 	$(TEST_RUNNER) $(TEST_RUNNER_ARGS) $(TESTS_PATH)
 
 testcoverage: init inittest clean
