@@ -284,3 +284,34 @@ class ManagerCreateTestCase(DatabaseTestCase):
         self.assertIsInstance(r, models.Model)
         self.assertEqual(data, r.data)
         self.assertEqual(pk, r.pk)
+
+
+class ManagerDeleteTestCase(DatabaseTestCase):
+    def test_delete_existent_object(self):
+        pk = 1L
+        data = u'test'
+
+        class Record(models.Model):
+            pk = models.Num64Field()
+            data = models.StringField()
+
+        r = Record(pk=pk, data=data)
+        r.save()
+
+        result = Record.objects.delete(pk=pk)
+
+        self.assertTrue(result)
+
+        with self.assertRaises(DoesNotExist):
+            Record.objects.get(pk=pk)
+
+    def test_delete_nonexistent_object(self):
+        pk = 1L
+
+        class Record(models.Model):
+            pk = models.Num64Field()
+            data = models.StringField()
+
+        result = Record.objects.delete(pk=pk)
+
+        self.assertFalse(result)
