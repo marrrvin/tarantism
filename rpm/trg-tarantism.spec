@@ -2,8 +2,8 @@
 %global __python %(which python2.7)
 
 %define name trg-tarantism
-%define version 0.1.0
-%define unmangled_version 0.1.0
+%define version 0.2.0
+%define unmangled_version 0.2.0
 %define release 1
 %define package_name tarantism
 
@@ -46,4 +46,3 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{python_sitelib}/%{package_name}/
 %{python_sitelib}/%{package_name}/*
 %{python_sitelib}/%{package_name}*egg-info
-
