@@ -52,7 +52,7 @@ class Model(object):
         )
 
     @classmethod
-    def _model_from_data(cls, raw_data):
+    def from_dict(cls, raw_data):
         data = {}
         for field_name, field in cls._fields.iteritems():
             if field_name in raw_data:
@@ -134,11 +134,11 @@ class Model(object):
         ])
 
     @classmethod
-    def _get_tarantool_types(cls):
+    def _get_tarantool_filter_types(cls):
         field_types = []
         for field_name in cls._fields_ordered:
             field = cls._fields[field_name]
-            field_types.append(field._get_tarantool_type())
+            field_types.append(field.tarantool_filter_type)
 
         return tuple(field_types)
 

@@ -29,7 +29,11 @@ INT64_MAX = +9223372036854775807
 class BaseField(object):
     name = None
 
+    # Used in tarantism.metaclasses.ModelMetaclass to sort fields.
     creation_counter = 0
+
+    # Used for field_types in tarantool client filter method.
+    tarantool_filter_type = str
 
     def __init__(self,
                  required=True,
@@ -47,10 +51,6 @@ class BaseField(object):
 
         self.creation_counter = BaseField.creation_counter
         BaseField.creation_counter += 1
-
-    @classmethod
-    def _get_tarantool_type(self):
-        return str
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -80,6 +80,11 @@ class Num32Field(BaseField):
     MIN = INT32_MIN
     MAX = INT32_MAX
 
+    # Used for field_types in tarantool client filter method.
+    tarantool_filter_type = int
+
+    type_factory = int
+
     def __init__(self, min_value=None, max_value=None, **kwargs):
         min_value = min_value or self.MIN
         max_value = max_value or self.MAX
@@ -93,25 +98,19 @@ class Num32Field(BaseField):
         self.min_value = min_value
         self.max_value = max_value
 
-        self._type_factory = int
-
         super(Num32Field, self).__init__(**kwargs)
 
-    @classmethod
-    def _get_tarantool_type(cls):
-        return int
-
     def to_python(self, value):
-        return self._type_factory(value)
+        return self.type_factory(value)
 
     def validate(self, value):
         try:
-            value = self._type_factory(value)
+            value = self.type_factory(value)
         except ValueError:
             raise ValidationError(
                 '{name} field error: '
-                '{value} could not be converted to {type}.'.format(
-                    name=self.name, value=value, type=self._type_factory
+                'Invalid {value} for field {field_class}.'.format(
+                    name=self.name, value=value, field_class=self.__class__.__name__
                 )
             )
 
@@ -136,14 +135,7 @@ class Num64Field(Num32Field):
     MIN = INT64_MIN
     MAX = INT64_MAX
 
-    def __init__(self, min_value=None, max_value=None, **kwargs):
-        super(Num64Field, self).__init__(min_value, max_value, **kwargs)
-
-        self._type_factory = long
-
-    def _get_tarantool_type(self):
-        # int() implicitly converts to long on int overflow
-        return int
+    type_factory = long
 
 
 class BytesField(BaseField):
@@ -162,9 +154,8 @@ class BytesField(BaseField):
         if not isinstance(value, basestring):
             raise ValidationError(
                 '{name} field error: '
-                '{value} has incorrect type {type} '
-                'and could not be converted to string.'.format(
-                    name=self.name, value=value, type=type(value)
+                'Invalid {value} for field {field_class}.'.format(
+                    name=self.name, value=value, field_class=self.__class__.__name__
                 )
             )
 
@@ -194,8 +185,7 @@ class BytesField(BaseField):
 
 
 class StringField(BytesField):
-    def _get_tarantool_type(self):
-        return unicode
+    tarantool_filter_type = unicode
 
     def to_db(self, value):
         return value.encode('utf8')

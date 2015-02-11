@@ -26,7 +26,7 @@ class BaseFieldTestCase(TestCase):
 
         self.assertEqual(value, field.to_python(value))
         self.assertIsNone(field.validate(value))
-        self.assertEqual(str, field._get_tarantool_type())
+        self.assertEqual(str, field.tarantool_filter_type)
 
     def test_descriptor(self):
         field = BaseField()
