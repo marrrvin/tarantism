@@ -16,8 +16,6 @@ from tarantism import INT32_MIN
 from tarantism import INT32_MAX
 from tarantism import INT64_MIN
 from tarantism import INT64_MAX
-from tarantism import IntField
-from tarantism import LongField
 from tarantism.tests import TestCase
 
 
@@ -104,10 +102,6 @@ class Num32FieldValidationTestCase(TestCase):
         with self.assertRaises(ValueError):
             Num32Field(max_value=INT32_MAX + 1)
 
-    def test_new_alias(self):
-        field = IntField()
-        self.assertIsInstance(field, Num32Field)
-
 
 class Num64FieldValidationTestCase(TestCase):
     def test_fail_on_invalid_type(self):
@@ -152,10 +146,6 @@ class Num64FieldValidationTestCase(TestCase):
     def test_invalid_max_value(self):
         with self.assertRaises(ValueError):
             Num64Field(max_value=INT64_MAX + 1)
-
-    def test_new_alias(self):
-        field = LongField()
-        self.assertIsInstance(field, Num64Field)
 
 
 class StringFieldSerializationTestCase(TestCase):

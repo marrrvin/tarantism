@@ -257,7 +257,7 @@ class ManagerFilterTestCase(DatabaseTestCase):
         data = u'test1'
 
         class Record(models.Model):
-            pk = models.LongField()
+            pk = models.Num64Field()
             data = models.StringField()
 
         Record.get_space().insert(

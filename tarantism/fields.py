@@ -9,8 +9,8 @@ from tarantism.errors import ValidationError
 
 __all__ = [
     'BaseField',
-    'IntField', 'INT32_MIN', 'INT32_MAX', 'Num32Field',
-    'LongField', 'INT64_MIN', 'INT64_MAX', 'Num64Field',
+    'INT32_MIN', 'INT32_MAX', 'Num32Field',
+    'INT64_MIN', 'INT64_MAX', 'Num64Field',
     'StringField', 'BytesField',
     'DateTimeField', 'DEFAULT_DATETIME_FORMAT',
     'DecimalField',
@@ -240,8 +240,3 @@ class DecimalField(BaseField):
 
     def to_python(self, value):
         return Decimal(value)
-
-
-# For backward compatibility
-IntField = Num32Field
-LongField = Num64Field
