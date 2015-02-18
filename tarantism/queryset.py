@@ -42,7 +42,6 @@ class QuerySet(object):
 
     def get(self, **kwargs):
         model_list = self.filter(**kwargs)
-
         if not model_list:
             raise self.model_class.DoesNotExist(
                 '{model_class} instance does not exists.'.format(

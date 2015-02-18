@@ -135,6 +135,8 @@ class Num64Field(Num32Field):
     MIN = INT64_MIN
     MAX = INT64_MAX
 
+    tarantool_filter_type = long
+
     type_factory = long
 
 
