@@ -61,9 +61,13 @@ class QuerySet(object):
         return self.model_class(**kwargs).save()
 
     def delete(self, **kwargs):
-        value = kwargs.values().pop()
+        values = []
+        for field_name in self.model_class._fields_ordered:
+            field = self.model_class._fields[field_name]
+            if field_name in kwargs:
+                values.append(field.to_python(kwargs[field_name]))
 
-        result = self.space.delete(value)
+        result = self.space.delete(values)
 
         return result.rowcount > 0
 

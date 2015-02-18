@@ -15,6 +15,7 @@ class DatabaseTestCase(TestCase):
             'port': 33013,
         }
         self.another_space_alias = 'the_new_space'
+        self.composite_primary_key_alias = 'composite_primary_key'
 
         register_connection(
             DEFAULT_ALIAS, space=0, **self.tnt_config
@@ -22,16 +23,22 @@ class DatabaseTestCase(TestCase):
         register_connection(
             self.another_space_alias, space=1, **self.tnt_config
         )
+        register_connection(
+            self.composite_primary_key_alias, space=2, **self.tnt_config
+        )
 
         self.space = get_space(DEFAULT_ALIAS)
         self.another_space = get_space(self.another_space_alias)
+        self.composite_primary_key_space = get_space(self.composite_primary_key_alias)
 
     def tearDown(self):
         self.space.connection.call('clear_space', ('0',))
         self.another_space.connection.call('clear_space', ('1',))
+        self.composite_primary_key_space.connection.call('clear_space', ('2',))
 
         disconnect(DEFAULT_ALIAS)
         disconnect(self.another_space_alias)
+        disconnect(self.composite_primary_key_alias)
 
 
 class ModelSaveTestCase(DatabaseTestCase):
@@ -315,3 +322,33 @@ class ManagerDeleteTestCase(DatabaseTestCase):
         result = Record.objects.delete(pk=pk)
 
         self.assertFalse(result)
+
+    def test_delete_composite_primary_key(self):
+        sid = 1L
+        uid = 2L
+        data = u'test'
+
+        class Record(models.Model):
+            sid = models.Num64Field(primary_key=True, db_index=1)
+            uid = models.Num32Field(db_index=2)
+            data = models.StringField()
+
+            meta = {
+                'db_alias': self.composite_primary_key_alias
+            }
+
+        r = Record(sid=sid, uid=uid, data=data)
+        r.save()
+
+        loaded_record = Record.objects.get(sid=sid, uid=uid)
+
+        self.assertEqual(loaded_record.sid, r.sid)
+        self.assertEqual(loaded_record.uid, r.uid)
+        self.assertEqual(loaded_record.data, r.data)
+
+        result = Record.objects.delete(sid=sid, uid=uid)
+
+        self.assertTrue(result)
+
+        with self.assertRaises(DoesNotExist):
+            Record.objects.get(sid=sid)
