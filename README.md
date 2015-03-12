@@ -27,12 +27,12 @@ class User(models.Model):
         verbose_name=u'Age'
     )
     login = models.StringField(
-        max_length=10,
+        min_length=10,
         max_length=50,
         verbose_name=u'Login'
     )
     password = models.StringField(
-        max_length=6,
+        min_length=6,
         max_length=20,
         verbose_name=u'Password'
     )
