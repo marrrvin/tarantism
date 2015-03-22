@@ -1,4 +1,6 @@
 
+import sys
+
 from tarantool import Connection
 from tarantool import DatabaseError
 
@@ -104,10 +106,10 @@ def get_connection(alias=DEFAULT_ALIAS, reconnect=False):
 
             _connections[alias] = Connection(host, port, **conn_settings)
         except DatabaseError as exc:
-            raise ConnectionError(
-                'Connect error for alias "{alias}": "{message}".'.format(
-                    alias=alias, message=exc
-                ))
+            message = 'Connect error for alias "{alias}": "{message}".'.format(
+                alias=alias, message=exc
+            )
+            raise ConnectionError, message, sys.exc_info()[2]
 
     return _connections[alias]
 
