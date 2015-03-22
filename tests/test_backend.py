@@ -1,4 +1,6 @@
 
+import struct
+
 from tarantism import DEFAULT_ALIAS
 from tarantism import register_connection
 from tarantism import get_space
@@ -57,7 +59,8 @@ class ModelSaveTestCase(DatabaseTestCase):
         response = self.space.select(pk)
 
         actual_record = response[0]
-        self.assertEqual(r.pk, int(actual_record[0]))
+
+        self.assertEqual(r.pk, struct.unpack('L', actual_record[0])[0])
         self.assertEqual(r.data, actual_record[1])
 
 
@@ -325,7 +328,7 @@ class ManagerDeleteTestCase(DatabaseTestCase):
 
     def test_delete_composite_primary_key(self):
         sid = 1L
-        uid = 2L
+        uid = 2
         data = u'test'
 
         class Record(models.Model):
