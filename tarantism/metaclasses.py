@@ -1,8 +1,8 @@
 
 from tarantism.fields import BaseField
 from tarantism.queryset import QuerySetManager
-from tarantism.errors import DoesNotExist
-from tarantism.errors import MultipleObjectsReturned
+from tarantism.exceptions import DoesNotExist
+from tarantism.exceptions import MultipleObjectsReturned
 
 
 __all__ = ['ModelMetaclass']

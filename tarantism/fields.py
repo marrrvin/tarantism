@@ -3,9 +3,7 @@ import re
 from datetime import datetime
 from decimal import Decimal
 
-import tarantool
-
-from tarantism.errors import ValidationError
+from tarantism.exceptions import ValidationError
 
 __all__ = [
     'BaseField',

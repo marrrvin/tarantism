@@ -1,7 +1,8 @@
 
 __all__ = ['QuerySetManager', 'QuerySet']
 
-DEFAULT_INDEX_NO = 0
+
+from tarantism.exceptions import FieldError
 
 
 class QuerySetManager(object):
@@ -28,10 +29,27 @@ class QuerySet(object):
     def filter(self, **kwargs):
         field_name, value = kwargs.items().pop()
 
-        index = self._get_index_number_by_field_name(field_name)
+        if field_name not in self._model_class._fields:
+            raise FieldError(
+                '{model_name} model does not have {field_name} field.'.format(
+                    model_name=self._model_class.__name__,
+                    field_name=field_name
+                ))
+
+        field = self._model_class._fields[field_name]
+
+        if field.db_index is None:
+            raise FieldError(
+                '{model_name} model {field_name} field is not marked as indexed.'.format(
+                    model_name=self._model_class.__name__,
+                    field_name=field_name
+                ))
+
+        field.validate(value)
 
         field_types = self.model_class._get_tarantool_filter_types()
-        response = self.space.select(value, index=index, field_types=field_types)
+
+        response = self.space.select(value, index=field.db_index, field_types=field_types)
 
         model_list = []
         for values in response:
@@ -55,7 +73,7 @@ class QuerySet(object):
                 )
             )
 
-        return model_list.pop()
+        return model_list[0]
 
     def create(self, **kwargs):
         return self.model_class(**kwargs).save()
@@ -67,27 +85,6 @@ class QuerySet(object):
             if field_name in kwargs:
                 values.append(field.to_python(kwargs[field_name]))
 
-        result = self.space.delete(values)
+        response = self.space.delete(values)
 
-        return result.rowcount > 0
-
-    def _get_index_number_by_field_name(self, field_name):
-        if field_name not in self.model_class._fields:
-            raise ValueError(
-                'Field {name} is not in defined field list: '
-                '[{field_list}].'.format(
-                    name=field_name,
-                    field_list=', '.join(self.model_class._fields_ordered)
-                )
-            )
-
-        field = self.model_class._fields[field_name]
-        if field.db_index is not None:
-            return field.db_index
-
-        if field_name == 'pk':
-            return 0
-
-        raise ValueError(
-            'Field {name} is not marked as indexed.'.format(name=field_name)
-        )
+        return response.rowcount > 0

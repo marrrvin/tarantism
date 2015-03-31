@@ -7,6 +7,9 @@ from tarantism import get_space
 from tarantism import disconnect
 from tarantism import models
 from tarantism import DoesNotExist
+from tarantism import ValidationError
+from tarantism import FieldError
+from tarantism.fields import INT64_MAX
 from tarantism.tests import TestCase
 
 
@@ -46,7 +49,7 @@ class DatabaseTestCase(TestCase):
 class ModelSaveTestCase(DatabaseTestCase):
     def test_save(self):
         class Record(models.Model):
-            pk = models.Num64Field()
+            pk = models.Num64Field(primary_key=True, db_index=0)
             data = models.StringField()
 
         pk = 1L
@@ -69,7 +72,7 @@ class ModelDeleteTestCase(DatabaseTestCase):
         pk = 1L
 
         class Record(models.Model):
-            pk = models.Num64Field()
+            pk = models.Num64Field(primary_key=True, db_index=0)
             data = models.StringField()
             secondary_key = models.Num32Field()
 
@@ -88,8 +91,7 @@ class ModelDeleteTestCase(DatabaseTestCase):
 
         class Record(models.Model):
             id = models.Num64Field(
-                primary_key=True,
-                db_index=0
+                primary_key=True, db_index=0
             )
             data = models.StringField()
 
@@ -124,7 +126,7 @@ class ModelUpdateTestCase(DatabaseTestCase):
         new_value = u'test2'
 
         class Record(models.Model):
-            pk = models.Num64Field()
+            pk = models.Num64Field(primary_key=True, db_index=0)
             data = models.StringField()
 
         r = Record(pk=pk, data=init_value)
@@ -140,7 +142,7 @@ class ModelUpdateTestCase(DatabaseTestCase):
 
     def test_update_unknown_operation(self):
         class Record(models.Model):
-            pk = models.Num64Field()
+            pk = models.Num64Field(primary_key=True, db_index=0)
             counter = models.Num32Field()
 
         r = Record(pk=1L, counter=1)
@@ -151,7 +153,7 @@ class ModelUpdateTestCase(DatabaseTestCase):
 
     def test_update_add(self):
         class Record(models.Model):
-            pk = models.Num64Field()
+            pk = models.Num64Field(primary_key=True, db_index=0)
             counter = models.Num32Field()
 
         r = Record(pk=1L, counter=1)
@@ -166,7 +168,7 @@ class ModelUpdateTestCase(DatabaseTestCase):
 class ManagerGetTestCase(DatabaseTestCase):
     def test_get_does_not_exist(self):
         class Record(models.Model):
-            pk = models.Num64Field()
+            pk = models.Num64Field(primary_key=True, db_index=0)
             data = models.StringField()
 
         with self.assertRaises(Record.DoesNotExist):
@@ -190,19 +192,11 @@ class ManagerGetTestCase(DatabaseTestCase):
         with self.assertRaises(Record.MultipleObjectsReturned):
             Record.objects.get(user_id=1L)
 
-    def test_get_non_existent_field(self):
-        class Record(models.Model):
-            pk = models.Num64Field()
-            data = models.StringField()
-
-        with self.assertRaises(ValueError):
-            Record.objects.get(non_existent_field=1L)
-
     def test_get_primary_key_not_defined(self):
         class Record(models.Model):
             data = models.StringField()
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(FieldError):
             Record.objects.get(data=u'test')
 
     def test_get_non_default_index(self):
@@ -220,11 +214,28 @@ class ManagerGetTestCase(DatabaseTestCase):
 
         self.assertEqual(data, r2.data)
 
+    def test_get_ignore_not_described_tuple_elements(self):
+        pk = 1L
+        data = u'test1'
+
+        class Record(models.Model):
+            pk = models.Num64Field(primary_key=True, db_index=0)
+            data = models.StringField()
+
+        Record.get_space().insert(
+            (pk, str(data), 'one', 'two', 'three')
+        )
+
+        record = Record.objects.get(pk=pk)
+
+        self.assertEqual(pk, record.pk)
+        self.assertEqual(data, record.data)
+
 
 class ManagerFilterTestCase(DatabaseTestCase):
     def test_get_empty_list(self):
         class Record(models.Model):
-            pk = models.Num64Field()
+            pk = models.Num64Field(primary_key=True, db_index=0)
             data = models.StringField()
 
         records = Record.objects.filter(pk=1L)
@@ -232,13 +243,13 @@ class ManagerFilterTestCase(DatabaseTestCase):
         self.assertIsInstance(records, list)
         self.assertEqual(0, len(records))
 
-    def test_get_list(self):
+    def test_filter_many_items(self):
         user_id = 1L
         data = u'test1'
 
         class Record(models.Model):
             pk = models.Num64Field()
-            user_id = models.Num64Field(db_index=1)
+            user_id = models.Num64Field(primary_key=True, db_index=1)
             data = models.StringField()
 
             meta = {
@@ -262,22 +273,40 @@ class ManagerFilterTestCase(DatabaseTestCase):
             self.assertEqual(data, r.data)
             self.assertIsInstance(data, unicode)
 
-    def test_get_ignore_not_described_tuple_elements(self):
-        pk = 1L
-        data = u'test1'
-
+    def test_filter_by_non_existent_field(self):
         class Record(models.Model):
-            pk = models.Num64Field()
+            pk = models.Num64Field(primary_key=True, db_index=0)
             data = models.StringField()
 
-        Record.get_space().insert(
-            (pk, str(data), 'one', 'two', 'three')
-        )
+        r = Record(pk=1L, data='test')
+        r.save()
 
-        record = Record.objects.get(pk=pk)
+        with self.assertRaises(FieldError):
+            Record.objects.filter(non_existent_field='value')
 
-        self.assertEqual(pk, record.pk)
-        self.assertEqual(data, record.data)
+    def test_filter_by_non_indexed_field(self):
+        class Record(models.Model):
+            pk = models.Num64Field(primary_key=True, db_index=0)
+            data = models.StringField()
+
+        data = 'test'
+
+        r = Record(pk=1L, data=data)
+        r.save()
+
+        with self.assertRaises(FieldError):
+            Record.objects.get(data=data)
+
+    def test_filter_by_invalid_value(self):
+        class Record(models.Model):
+            pk = models.Num64Field(primary_key=True, db_index=0)
+            data = models.StringField()
+
+        r = Record(pk=1, data='test')
+        r.save()
+
+        with self.assertRaises(ValidationError):
+            Record.objects.filter(pk=INT64_MAX + 1)
 
 
 class ManagerCreateTestCase(DatabaseTestCase):
@@ -302,7 +331,7 @@ class ManagerDeleteTestCase(DatabaseTestCase):
         data = u'test'
 
         class Record(models.Model):
-            pk = models.Num64Field()
+            pk = models.Num64Field(primary_key=True, db_index=0)
             data = models.StringField()
 
         r = Record(pk=pk, data=data)
@@ -319,7 +348,7 @@ class ManagerDeleteTestCase(DatabaseTestCase):
         pk = 1L
 
         class Record(models.Model):
-            pk = models.Num64Field()
+            pk = models.Num64Field(primary_key=True, db_index=0)
             data = models.StringField()
 
         result = Record.objects.delete(pk=pk)

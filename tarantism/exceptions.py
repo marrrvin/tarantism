@@ -2,7 +2,8 @@
 __all__ = [
     'DoesNotExist',
     'MultipleObjectsReturned',
-    'ValidationError'
+    'ValidationError',
+    'FieldError'
 ]
 
 
@@ -15,4 +16,8 @@ class MultipleObjectsReturned(Exception):
 
 
 class ValidationError(Exception):
+    pass
+
+
+class FieldError(Exception):
     pass

@@ -2,7 +2,7 @@
 from tarantism.metaclasses import ModelMetaclass
 from tarantism.connection import get_space
 from tarantism.connection import DEFAULT_ALIAS
-from tarantism.errors import ValidationError
+from tarantism.exceptions import ValidationError
 from tarantism.fields import *
 
 
