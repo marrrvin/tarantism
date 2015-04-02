@@ -214,13 +214,32 @@ class ManagerGetTestCase(DatabaseTestCase):
 
         self.assertEqual(data, r2.data)
 
-    def test_get_ignore_not_described_tuple_elements(self):
+    def test_fail_on_not_described_tuple_elements(self):
         pk = 1L
         data = u'test1'
 
         class Record(models.Model):
             pk = models.Num64Field(primary_key=True, db_index=0)
             data = models.StringField()
+
+        Record.get_space().insert(
+            (pk, str(data), 'one', 'two', 'three')
+        )
+
+        with self.assertRaises(FieldError):
+            Record.objects.get(pk=pk)
+
+    def test_disable_fail_on_not_described_tuple_elements(self):
+        pk = 1L
+        data = u'test1'
+
+        class Record(models.Model):
+            pk = models.Num64Field(primary_key=True, db_index=0)
+            data = models.StringField()
+
+            meta = {
+                'check_tuple_length': False
+            }
 
         Record.get_space().insert(
             (pk, str(data), 'one', 'two', 'three')

@@ -51,8 +51,21 @@ class QuerySet(object):
 
         response = self.space.select(value, index=field.db_index, field_types=field_types)
 
+        check_tuple_length = self.model_class._meta.get('check_tuple_length', True)
+
         model_list = []
-        for values in response:
+        model_fields_count = len(self.model_class._fields_ordered)
+
+        for number, values in enumerate(response):
+            if check_tuple_length and len(values) != model_fields_count:
+                extra_fields = values[model_fields_count:]
+                raise FieldError(
+                    'Tuple #{number} has {fields_count} extra fields: {fields}'.format(
+                        number=number,
+                        fields_count=len(extra_fields),
+                        fields=','.join(extra_fields)
+                    ))
+
             raw_data = self.model_class._values_to_dict(values)
             model_list.append(self.model_class.from_dict(raw_data))
 
