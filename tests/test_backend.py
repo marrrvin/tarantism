@@ -66,21 +66,41 @@ class ModelSaveTestCase(DatabaseTestCase):
         self.assertEqual(r.pk, struct.unpack('L', actual_record[0])[0])
         self.assertEqual(r.data, actual_record[1])
 
+    def test_update_on_second_save(self):
+        class Record(models.Model):
+            pk = models.Num64Field(primary_key=True, db_index=0)
+            data = models.StringField()
+
+        pk = 1L
+
+        r = Record(pk=pk, data='test')
+
+        self.assertFalse(r.exists_in_db)
+
+        r.save()
+
+        self.assertTrue(r.exists_in_db)
+
+        r.save()
+
+        self.assertTrue(r.exists_in_db)
+
 
 class ModelDeleteTestCase(DatabaseTestCase):
     def test_delete_existent(self):
         pk = 1L
+        data = u'test'
 
         class Record(models.Model):
             pk = models.Num64Field(primary_key=True, db_index=0)
             data = models.StringField()
             secondary_key = models.Num32Field()
 
-        r = Record(pk=pk, data=u'test', secondary_key=1L)
+        r = Record(pk=pk, data=data, secondary_key=1L)
         r.save()
-        returned_value = r.delete()
 
-        self.assertIsInstance(returned_value, Record)
+        self.assertTrue(r.delete())
+        self.assertFalse(r.exists_in_db)
 
         with self.assertRaises(DoesNotExist):
             Record.objects.get(pk=pk)
@@ -291,6 +311,8 @@ class ManagerFilterTestCase(DatabaseTestCase):
             self.assertIsInstance(r.user_id, long)
             self.assertEqual(data, r.data)
             self.assertIsInstance(data, unicode)
+
+            self.assertTrue(r.exists_in_db)
 
     def test_filter_by_non_existent_field(self):
         class Record(models.Model):

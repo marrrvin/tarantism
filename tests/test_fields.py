@@ -20,7 +20,7 @@ from tarantism.tests import TestCase
 
 
 class BaseFieldTestCase(TestCase):
-    def test_public_interface(self):
+    def test_public(self):
         field = BaseField()
         value = u'test'
 
@@ -48,7 +48,7 @@ class FieldRequiredValidationTestCase(TestCase):
         with self.assertRaises(ValidationError):
             r.validate()
 
-    def test_fail_on_required_field_by_default(self):
+    def test_field_do_not_required_by_default(self):
         class Record(Model):
             pk = Num64Field()
 

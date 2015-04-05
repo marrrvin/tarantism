@@ -29,14 +29,14 @@ class QuerySet(object):
     def filter(self, **kwargs):
         field_name, value = kwargs.items().pop()
 
-        if field_name not in self._model_class._fields:
+        if field_name not in self.model_class._fields:
             raise FieldError(
                 '{model_name} model does not have {field_name} field.'.format(
                     model_name=self._model_class.__name__,
                     field_name=field_name
                 ))
 
-        field = self._model_class._fields[field_name]
+        field = self.model_class._fields[field_name]
 
         if field.db_index is None:
             raise FieldError(
@@ -67,7 +67,9 @@ class QuerySet(object):
                     ))
 
             raw_data = self.model_class._values_to_dict(values)
-            model_list.append(self.model_class.from_dict(raw_data))
+            model = self.model_class.from_dict(raw_data)
+            model._exists_in_db = True
+            model_list.append(model)
 
         return model_list
 

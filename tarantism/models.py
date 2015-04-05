@@ -23,6 +23,7 @@ class Model(object):
 
     def __init__(self, **kwargs):
         self._data = {}
+        self._exists_in_db = kwargs.pop('exists_in_db', False)
 
         self.reset()
 
@@ -60,6 +61,10 @@ class Model(object):
 
         return cls(**data)
 
+    @property
+    def exists_in_db(self):
+        return self._exists_in_db
+
     def reset(self):
         self._data = {}
         for field_name, field in self._fields.iteritems():
@@ -91,12 +96,16 @@ class Model(object):
 
         data = self.to_db()
 
-        return self.insert(data)
+        if self.exists_in_db:
+            return self.update(**data)
+        else:
+            return self.insert(**data)
 
-    def insert(self, data):
+    def insert(self, **data):
         values = self._dict_to_values(data)
 
         self.get_space().insert(values)
+        self._exists_in_db = True
 
         return self
 
@@ -107,6 +116,8 @@ class Model(object):
 
         self.get_space().update(primary_key_value, changes)
 
+        self._exists_in_db = True
+
         # XXX
         for field_name, field_value in kwargs.iteritems():
             setattr(self, field_name, field_value)
@@ -116,9 +127,11 @@ class Model(object):
     def delete(self):
         primary_key_value = self._get_primary_key_value()
 
-        values = self.get_space().delete(primary_key_value)
+        response = get_space().delete(primary_key_value)
 
-        return self.__class__(**self._values_to_dict(values))
+        self._exists_in_db = False
+
+        return response.rowcount > 0
 
     @classmethod
     def _values_to_dict(cls, values):
