@@ -72,18 +72,25 @@ class ModelSaveTestCase(DatabaseTestCase):
             data = models.StringField()
 
         pk = 1L
+        old_data = u'old_data'
+        new_data = u'new_data'
 
-        r = Record(pk=pk, data='test')
+        r = Record(pk=pk, data=old_data)
 
         self.assertFalse(r.exists_in_db)
 
         r.save()
 
         self.assertTrue(r.exists_in_db)
+        self.assertEqual(old_data, r.data)
+        self.assertEqual(pk, r.pk)
 
+        r.data = new_data
         r.save()
 
         self.assertTrue(r.exists_in_db)
+        self.assertEqual(pk, r.pk)
+        self.assertEqual(new_data, r.data)
 
 
 class ModelDeleteTestCase(DatabaseTestCase):
