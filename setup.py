@@ -11,7 +11,7 @@ setup(
     name='tarantism',
     description='',
     long_description=long_description,
-    version='0.3.0',
+    version='0.4.0',
     url='https://gitlab.corp.mail.ru/target-web/tarantism',
     author='Sergei Orlov',
     author_email='sergey.orlov@corp.mail.ru',
