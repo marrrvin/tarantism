@@ -219,14 +219,14 @@ class ManagerGetTestCase(DatabaseTestCase):
         with self.assertRaises(Record.MultipleObjectsReturned):
             Record.objects.get(user_id=1L)
 
-    def test_get_primary_key_not_defined(self):
+    def test_get_by_non_existent_primary_key(self):
         class Record(models.Model):
             data = models.StringField()
 
         with self.assertRaises(FieldError):
             Record.objects.get(data=u'test')
 
-    def test_get_non_default_index(self):
+    def test_get_by_non_default_index(self):
         user_id = 1L
         data = u'test'
 
@@ -279,7 +279,7 @@ class ManagerGetTestCase(DatabaseTestCase):
 
 
 class ManagerFilterTestCase(DatabaseTestCase):
-    def test_get_empty_list(self):
+    def test_filter_returns_empty_list(self):
         class Record(models.Model):
             pk = models.Num64Field(primary_key=True, db_index=0)
             data = models.StringField()
@@ -289,7 +289,7 @@ class ManagerFilterTestCase(DatabaseTestCase):
         self.assertIsInstance(records, list)
         self.assertEqual(0, len(records))
 
-    def test_filter_many_items(self):
+    def test_filter_returns_many_items(self):
         user_id = 1L
         data = u'test1'
 
@@ -320,6 +320,37 @@ class ManagerFilterTestCase(DatabaseTestCase):
             self.assertIsInstance(data, unicode)
 
             self.assertTrue(r.exists_in_db)
+
+    def test_filter_by_composite_primary_key(self):
+        sid = 1L
+        uid = 2
+        data = u'test'
+
+        class Record(models.Model):
+            sid = models.Num64Field(db_index=1)
+            uid = models.Num32Field(db_index=2)
+            data = models.StringField()
+
+            meta = {
+                'db_alias': self.composite_primary_key_alias,
+                'index_together': {
+                    ('sid', 'uid'): {
+                        'db_index': 0,
+                        'primary_key': True
+                    }
+                }
+            }
+
+        r = Record(sid=sid, uid=uid, data=data)
+        r.save()
+
+        records = Record.objects.filter(sid=sid, uid=uid)
+
+        record = records[0]
+
+        self.assertEqual(record.sid, r.sid)
+        self.assertEqual(record.uid, r.uid)
+        self.assertEqual(record.data, r.data)
 
     def test_filter_by_non_existent_field(self):
         class Record(models.Model):
@@ -403,18 +434,24 @@ class ManagerDeleteTestCase(DatabaseTestCase):
 
         self.assertFalse(result)
 
-    def test_delete_composite_primary_key(self):
+    def test_delete_by_composite_primary_key(self):
         sid = 1L
         uid = 2
         data = u'test'
 
         class Record(models.Model):
-            sid = models.Num64Field(primary_key=True, db_index=1)
+            sid = models.Num64Field(db_index=1)
             uid = models.Num32Field(db_index=2)
             data = models.StringField()
 
             meta = {
-                'db_alias': self.composite_primary_key_alias
+                'db_alias': self.composite_primary_key_alias,
+                'index_together': {
+                    ('sid', 'uid'): {
+                        'db_index': 0,
+                        'primary_key': True
+                    }
+                }
             }
 
         r = Record(sid=sid, uid=uid, data=data)
