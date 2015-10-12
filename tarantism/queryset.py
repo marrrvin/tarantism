@@ -27,29 +27,43 @@ class QuerySet(object):
         return self._space
 
     def filter(self, **kwargs):
-        field_name, value = kwargs.items().pop()
+        values = []
+        db_index = None
 
-        if field_name not in self.model_class._fields:
+        index_together = self._model_class._meta.get('index_together', {})
+
+        for field_name in self.model_class._fields_ordered:
+            # Silently ignore non defined in model fields
+            if field_name not in kwargs:
+                continue
+
+            field = self.model_class._fields[field_name]
+
+            value = kwargs[field_name]
+
+            field.validate(value)
+
+            values.append(field.to_python(value))
+
+            if index_together:
+                for compound_index_fields, params in index_together.iteritems():
+                    if field_name in compound_index_fields:
+                        db_index = params.get('db_index', 0)
+                        break
+
+            elif field.db_index is not None:
+                db_index = field.db_index
+
+        if db_index is None:
             raise FieldError(
-                '{model_name} model does not have {field_name} field.'.format(
+                'Index not found for model {model_name} fields {fields}.'.format(
                     model_name=self._model_class.__name__,
-                    field_name=field_name
+                    fields=','.join(kwargs.keys())
                 ))
-
-        field = self.model_class._fields[field_name]
-
-        if field.db_index is None:
-            raise FieldError(
-                '{model_name} model {field_name} field is not marked as indexed.'.format(
-                    model_name=self._model_class.__name__,
-                    field_name=field_name
-                ))
-
-        field.validate(value)
 
         field_types = self.model_class._get_tarantool_filter_types()
 
-        response = self.space.select(value, index=field.db_index, field_types=field_types)
+        response = self.space.select(values, index=db_index, field_types=field_types)
 
         check_tuple_length = self.model_class._meta.get('check_tuple_length', True)
 

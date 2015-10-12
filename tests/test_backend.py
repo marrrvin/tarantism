@@ -336,7 +336,6 @@ class ManagerFilterTestCase(DatabaseTestCase):
                 'index_together': {
                     ('sid', 'uid'): {
                         'db_index': 0,
-                        'primary_key': True
                     }
                 }
             }
