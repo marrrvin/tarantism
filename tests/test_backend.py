@@ -411,6 +411,31 @@ class ManagerFilterTestCase(DatabaseTestCase):
         self.assertEqual(record.uid, r.uid)
         self.assertEqual(record.data, r.data)
 
+    def test_filter_by_composite_primary_key_not_all_fields_given(self):
+        sid = 1L
+        uid = 2
+        data = u'test'
+
+        class Record(models.Model):
+            sid = models.Num64Field(db_index=1)
+            uid = models.Num32Field(db_index=2)
+            data = models.StringField()
+
+            meta = {
+                'db_alias': self.composite_primary_key_alias,
+                'index_together': {
+                    ('sid', 'uid'): {
+                        'db_index': 0,
+                    }
+                }
+            }
+
+        r = Record(sid=sid, uid=uid, data=data)
+        r.save()
+
+        with self.assertRaises(FieldError):
+            Record.objects.filter(uid=uid)
+
     def test_filter_by_non_existent_field(self):
         class Record(models.Model):
             pk = models.Num64Field(primary_key=True, db_index=0)
@@ -527,4 +552,4 @@ class ManagerDeleteTestCase(DatabaseTestCase):
         self.assertTrue(result)
 
         with self.assertRaises(DoesNotExist):
-            Record.objects.get(sid=sid)
+            Record.objects.get(sid=sid, uid=uid)

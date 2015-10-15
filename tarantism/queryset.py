@@ -30,7 +30,22 @@ class QuerySet(object):
         values = []
         db_index = None
 
+        filter_field_names = set(kwargs.keys())
+
         index_together = self._model_class._meta.get('index_together', {})
+
+        if index_together:
+            for compound_index_fields, params in index_together.iteritems():
+                if filter_field_names.issuperset(compound_index_fields):
+                    db_index = params.get('db_index', 0)
+                    break
+
+            if db_index is None:
+                raise FieldError(
+                    'Index not found for model {model_name} fields {fields}.'.format(
+                        model_name=self._model_class.__name__,
+                        fields=','.join(kwargs.keys())
+                    ))
 
         for field_name in self.model_class._fields_ordered:
             # Silently ignore non defined in model fields
@@ -45,13 +60,7 @@ class QuerySet(object):
 
             values.append(field.to_python(value))
 
-            if index_together:
-                for compound_index_fields, params in index_together.iteritems():
-                    if field_name in compound_index_fields:
-                        db_index = params.get('db_index', 0)
-                        break
-
-            elif field.db_index is not None:
+            if db_index is None and field.db_index is not None:
                 db_index = field.db_index
 
         if db_index is None:
