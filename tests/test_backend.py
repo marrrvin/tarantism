@@ -92,6 +92,37 @@ class ModelSaveTestCase(DatabaseTestCase):
         self.assertEqual(pk, r.pk)
         self.assertEqual(new_data, r.data)
 
+    def test_update_by_composite_primary_key(self):
+        sid = 1L
+        uid = 2
+        data = u'test'
+        new_data = u'totally not a test'
+
+        class Record(models.Model):
+            sid = models.Num64Field(db_index=1)
+            uid = models.Num32Field(db_index=2)
+            data = models.StringField()
+
+            meta = {
+                'db_alias': self.composite_primary_key_alias,
+                'index_together': {
+                    ('sid', 'uid'): {
+                        'primary_key': True,
+                        'db_index': 0
+                    }
+                }
+            }
+
+        r = Record(sid=sid, uid=uid, data=data)
+        r.save()
+        return_value = r.update(data=new_data)
+
+        self.assertIsInstance(return_value, Record)
+        self.assertEqual(return_value.data, new_data)
+
+        r2 = Record.objects.get(sid=sid, uid=uid)
+        self.assertEqual(new_data, r2.data)
+
 
 class ModelDeleteTestCase(DatabaseTestCase):
     def test_delete_existent(self):
@@ -144,6 +175,35 @@ class ModelDeleteTestCase(DatabaseTestCase):
 
         with self.assertRaises(ValueError):
             r.delete()
+
+    def test_delete_by_composite_primary_key(self):
+        sid = 1L
+        uid = 2
+        data = u'test'
+
+        class Record(models.Model):
+            sid = models.Num64Field(db_index=1)
+            uid = models.Num32Field(db_index=2)
+            data = models.StringField()
+
+            meta = {
+                'db_alias': self.composite_primary_key_alias,
+                'index_together': {
+                    ('sid', 'uid'): {
+                        'primary_key': True,
+                        'db_index': 0,
+                    }
+                }
+            }
+
+        r = Record(sid=sid, uid=uid, data=data)
+        r.save()
+
+        self.assertTrue(r.delete())
+        self.assertFalse(r.exists_in_db)
+
+        with self.assertRaises(DoesNotExist):
+            Record.objects.get(sid=sid, uid=uid)
 
 
 class ModelUpdateTestCase(DatabaseTestCase):
@@ -447,8 +507,8 @@ class ManagerDeleteTestCase(DatabaseTestCase):
                 'db_alias': self.composite_primary_key_alias,
                 'index_together': {
                     ('sid', 'uid'): {
-                        'db_index': 0,
-                        'primary_key': True
+                        'primary_key': True,
+                        'db_index': 0
                     }
                 }
             }

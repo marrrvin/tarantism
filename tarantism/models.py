@@ -127,7 +127,7 @@ class Model(object):
     def delete(self):
         primary_key_value = self._get_primary_key_value()
 
-        response = get_space().delete(primary_key_value)
+        response = self.get_space().delete(primary_key_value)
 
         self._exists_in_db = False
 
@@ -163,6 +163,12 @@ class Model(object):
         for field_name, field in self._fields.iteritems():
             if field.primary_key:
                 return getattr(self, field_name)
+
+        index_together = self._meta.get('index_together', {})
+
+        for compound_index_fields, params in index_together.iteritems():
+            if params.get('primary_key', False):
+                return [getattr(self, name) for name in compound_index_fields]
 
         raise ValueError(
             'Model should have primary key field.'

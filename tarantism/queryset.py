@@ -110,9 +110,12 @@ class QuerySet(object):
     def delete(self, **kwargs):
         values = []
         for field_name in self.model_class._fields_ordered:
+            if field_name not in kwargs:
+                continue
+
             field = self.model_class._fields[field_name]
-            if field_name in kwargs:
-                values.append(field.to_python(kwargs[field_name]))
+
+            values.append(field.to_python(kwargs[field_name]))
 
         response = self.space.delete(values)
 
